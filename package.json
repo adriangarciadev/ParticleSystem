@@ -1,0 +1,19 @@
+{
+  "name": "ParticleSystem",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "webpack --mode development",
+  "build": "webpack --mode production"
+},
+
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.24.2",
+    "webpack-cli": "^4.5.0"
+  }
+}

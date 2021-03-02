@@ -1,1 +1,1173 @@
-!function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e():"function"==typeof define&&define.amd?define([],e):"object"==typeof exports?exports.PS=e():t.PS=e()}(self,(function(){return(()=>{"use strict";var t={d:(e,s)=>{for(var i in s)t.o(s,i)&&!t.o(e,i)&&Object.defineProperty(e,i,{enumerable:!0,get:s[i]})},o:(t,e)=>Object.prototype.hasOwnProperty.call(t,e),r:t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})}},e={};t.r(e),t.d(e,{Color:()=>a,ColorFunction:()=>m,ColorGenerator:()=>h,ColorRange:()=>c,Particle:()=>y,ParticleSystem:()=>w,ScalarFunction:()=>p,ScalarGenerator:()=>d,ScalarRange:()=>u,Sprite:()=>x,SpriteSheet:()=>f,TraceList:()=>g,TraceSheet:()=>S,Vector:()=>i,VectorArcRange:()=>o,VectorFunction:()=>l,VectorGenerator:()=>r,VectorRange:()=>n});class s{static getRandom(t,e){return Math.random()*(e-t)+t}static randomTranslation(t,e){return i.getRandom(t,e)}static watchDelta(t){return t>30?17:t}static lerp(t,e,s){return t*(1-s)+e*s}}class i{static rotateVector(t,e){t.x=t.x*Math.cos(e)-t.y*Math.sin(e),t.y=t.x*Math.sin(e)+t.y*Math.cos(e)}static scaleVector(t,e){t.x=t.x*e,t.y=t.y*e}equals(t){return this.x==t.x&&this.y==t.y}isZero(){return 0==this.x&&0==this.y}translateInto(t,e){t.x=this.x+e.x,t.y=this.y+e.y}rotateInto(t,e){t.x=this.x*Math.cos(e)-this.y*Math.sin(e),t.y=this.x*Math.sin(e)+this.y*Math.cos(e)}scaleInto(t,e){t.x=this.x*e,t.y=this.y*e}transformInto(t,e){t.x=this.x*Math.cos(e.rotation)-this.y*Math.sin(e.rotation),t.y=this.x*Math.sin(e.rotation)+this.y*Math.cos(e.rotation),t.x=t.x*e.scale.x,t.y=t.y*e.scale.y,t.x+=e.translation.x,t.y+=e.translation.y}transformIntoValues(t,e,s){t.x=this.x*Math.cos(e.rotation.getValue(s))-this.y*Math.sin(e.rotation.getValue(s)),t.y=this.x*Math.sin(e.rotation.getValue(s))+this.y*Math.cos(e.rotation.getValue(s)),t.x=t.x*e.scale.getValue(s).x,t.y=t.y*e.scale.getValue(s).y,t.x+=e.translation.getValue(s).x,t.y+=e.translation.getValue(s).y}constructor(t=0,e=0){this.x=t,this.y=e}get width(){return this.x}set width(t){this.x=t}get height(){return this.y}set height(t){this.y=t}set(t,e){return this.x=t,this.y=e,this}add(t){this.x+=t.x,this.y+=t.y}addXY(t,e){this.x+=t,this.y+=e}addInto(t,e){this.x=t.x+e.x,this.y=t.y+e.y}copy(){return new i(this.x,this.y)}copyInto(t){this.x=t.x,this.y=t.y}static getRandom(t,e){return t&&e?t.x>e.x||t.y>e.y?(console.error("Trying to generate a random number with the wrong parameters, min is greater than max for example\n a Default vector has been created please correct the inputs"),new i(0,0)):new i(s.getRandom(t.x,e.x),s.getRandom(t.y,e.y)):(console.error("min or max are not defined please correct your inputs"),new i(0,0))}lerpInto(t,e,i){this.x=s.lerp(t.x,e.x,i),this.y=s.lerp(t.y,e.y,i)}}i.Zero=new i(0,0);class a{constructor(t,e,s){this.r=t,this.g=e,this.b=s}getRGB(){return"rgb("+ +this.r+","+ +this.g+","+ +this.b+")"}static hexToRGB(t){let e=0,s=0,i=0;return 4==t.length?(e="0x"+t[1]+t[1],s="0x"+t[2]+t[2],i="0x"+t[3]+t[3]):7==t.length&&(e="0x"+t[1]+t[2],s="0x"+t[3]+t[4],i="0x"+t[5]+t[6]),new a(parseInt(e),parseInt(s),parseInt(i))}}class r{constructor(){}generate(){console.error("Please override me called from vector generator")}}class n extends r{constructor(t,e){super(),this.min=t,this.max=e}generate(){return i.getRandom(this.min,this.max)}}class o extends r{constructor(t,e,s,i){super(),this.arcStart=t,this.arcEnd=e,this.vStart=s,this.vEnd=i}generate(){var t=s.getRandom(this.arcStart,this.arcEnd),e=s.getRandom(this.vStart,this.vEnd);return new i(e*Math.cos(t),e*Math.sin(t))}}class l{constructor(t,e){this.f=t,this.param=e}}class h{constructor(){}generate(){console.error("Please override me called from Color Generator")}}class c extends h{constructor(t,e){super(),this.min=a.hexToRGB(t),this.max=a.hexToRGB(e)}generate(){return new a(s.getRandom(this.min.r,this.max.r),s.getRandom(this.min.g,this.max.g),s.getRandom(this.min.b,this.max.b)).getRGB()}}class m{constructor(t,e){this.f=t,this.param=e}}class d{constructor(){}generate(){console.error("Please override me called from Scalar Generator")}}class u extends d{constructor(t,e){super(),this.min=t,this.max=e}generate(){return s.getRandom(this.min,this.max)}}class p{constructor(t,e){this.f=t,this.param=e}}class y{constructor(t,e){this._PS=e,this._delta=0,this.TTL=t.TTL,this.elapsed=t.elapsed||0,this.velocity=t.velocity||new i(0,0),this.angularSpeed=t.angularSpeed,this.scaleVelocity=t.scaleVelocity,this.trace=t.trace||null,this.creationTime=performance.now(),this.currTime=performance.now(),this.strokeStyle=t.strokeStyle||"#000000FF",this.fillStyle=t.fillStyle,this.timelineOffset=t.timelineOffset||0,this.timeLineElapsed=0,this.isPlaying=t.autoplay||!0,this.Transform=t.Transform}timelinePlay(){this.isPlaying=!0}timelineStop(){this.isPlaying=!1}timelineRewind(){this.timeLineElapsed=0}timeLineSetTime(t){this.timeLineElapsed=t}updateTranslation(){this.Transform.translation.dynamic.addXY(this.velocity.x*this._delta/1e3,this.velocity.y*this._delta/1e3)}updateRotation(){this.Transform.rotation.dynamic+=this.angularSpeed*this._delta/1e3}updateScale(){this.Transform.scale.dynamic.addXY(this.scaleVelocity.x*this._delta/1e3,this.scaleVelocity.y*this._delta/1e3)}updateTransforms(){this.updateTranslation(),this.updateRotation(),this.updateScale()}tick(){this._delta=performance.now()-this.currTime,this._delta=s.watchDelta(this._delta),this.elapsed+=this._delta,this.isPlaying&&(this.timeLineElapsed+=this._delta),this.currTime=performance.now(),this._PS.context.lineWidth=10,this._PS.hasCanvas()&&this._PS.hasContext()&&(this.updateTransforms(),this.trace.tick(this),"function"==typeof this.fillStyle?this._PS.context.fillStyle=this.fillStyle(this.elapsed):this._PS.context.fillStyle=this.fillStyle,this._PS.context.fill(),"function"==typeof this.strokeStyle?this._PS.context.strokeStyle=this.strokeStyle(this.elapsed):this._PS.context.strokeStyle=this.strokeStyle,this._PS.context.stroke())}}class x{constructor(){}}class g extends x{constructor(t){super(),this.traces=t}tick(t){for(var e=0;e<this.traces.length;e++)this.traces[e].tick(t._PS.context,t.Transform,t)}}class f extends x{constructor(t){super(),this.img=t.img,this.maxSprites=t.maxSprites||1,t.frameWidth?this.frameWidth=t.frameWidth:(console.error("set the frame width correctly"),this.frameWidth=0),t.frameHeight?this.frameHeight=t.frameHeight:(console.error("set the frame height correctly"),this.frameHeight=0),this.ncols=t.ncols||1,this.nrows=t.nrows||1,this.rotateFromCenter=t.rotateFromCenter||!0,this.autoplay=t.autoplay||!0,this.loop=!0,this.frameTime=t.frameTime||200,this.currentSprite=t.curFrame||0,this.maxTime=1800,this.elapsed=0}setFrame(t){this.currentSprite=t}tick(t){this.autoplay&&(this.elapsed=t.elapsed);var e=t._PS.context;e.translate(t.Transform.translation.getValue(t.elapsed).x,t.Transform.translation.getValue(t.elapsed).y),e.scale(t.Transform.scale.getValue(t.elapsed).x,t.Transform.scale.getValue(t.elapsed).y),e.rotate(t.Transform.rotation.getValue(t.elapsed)),this.loop?this.currentSprite=Math.floor(this.elapsed/this.frameTime)%this.maxSprites:this.currentSprite=Math.floor(this.elapsed/this.frameTime),e.drawImage(this.img,this.currentSprite%this.ncols*this.frameWidth,Math.floor(this.currentSprite/this.ncols)*this.frameHeight,this.frameWidth,this.frameHeight,this.rotateFromCenter?-this.frameWidth/2:0,this.rotateFromCenter?-this.frameHeight/2:0,this.frameWidth,this.frameHeight),e.setTransform(1,0,0,1,0,0)}}class S extends x{}class T{constructor(t,e,s){this.val=t,this.dynamic=e,this.timeline=s}getValue(t){console.error("has to be implemented")}getbase(){console.error("has to be implemented")}getTimelineValue(t){console.error("has to be implemented")}}class V extends T{constructor(t,e,s=null){super(t,e,s)}getValue(t=0){return this.timeline?this.val=this.dynamic+this.timeline.getValue(t):this.val=this.dynamic,this.val}}class _ extends T{constructor(t,e,s=null){super(t,e,s)}getValue(t=0){return this.timeline?this.val.addInto(this.dynamic,this.timeline.getValue(t)):this.val.copyInto(this.dynamic),this.val}}class w{constructor(t){this._delta=0,this.elapsed=0,this.currTime=performance.now(),this.parameters=t,this.maxParticles=t.maxParticles||5,this.canvas=t.canvas||null,this.context=this.canvas.getContext("2d")||null,this.generationSpeed=t.generationSpeed||5,this.generationAllowance=this.generationSpeed,this.particles=[],this.particleGlobalIndex=0}hasCanvas(){return null!=this.canvas}hasContext(){return null!=this.context}tick(){this._delta=performance.now()-this.currTime,this._delta=s.watchDelta(this._delta),this.elapsed+=this._delta,this.currTime=performance.now(),this.context.clearRect(0,0,this.canvas.width,this.canvas.height);for(var t=0;t<this.particles.length;t++)this.particles[t].tick(),0!=this.particles[t].TTL&&this.particles[t].elapsed>=this.particles[t].TTL&&(this.particles[t]._PS=null,this.particles.splice(t,1));for(;this.particles.length<this.maxParticles&&this.generationAllowance>1;)this.particleGlobalIndex++,this.particles.push(this._generateParticle(this.parameters,this.particles.length)),this.generationAllowance--;this.generationAllowance+=this.generationSpeed*this._delta/1e3}_handleVectorValue(t,e,s=""){return t?t instanceof i?t.copy():t instanceof r?t.generate():t instanceof l?(t.param.context=this,t.f(t.param)):void console.error(s):e.copy()}_handleScalarValue(t,e,s=""){return t?"number"==typeof t?t:t instanceof d?t.generate():t instanceof p?(console.error("not implemented yet"),e):void console.error(s):e}_handleColorValue(t,e="#000000",s){return t?"string"==typeof t?t:t instanceof h?t.generate():t instanceof m?e:void console.error(s):e}_generateParticle(t,e){var s={TTL:this._handleScalarValue(t.TTL,0),elapsed:t.elapsed||0,velocity:this._handleVectorValue(t.initialVelocity,new i(0,0)),angularSpeed:this._handleScalarValue(t.angularSpeed,0,"ERROR WITH ANGULAR SPEED"),scaleVelocity:this._handleVectorValue(t.scaleVelocity,new i(0,0)),trace:t.trace,Transform:{translation:new _(new i(0,0),this._handleVectorValue(t.initialPosition,new i(0,0)),t.translationTimeline||null),rotation:new V(0,this._handleScalarValue(t.initialRotation,0),t.rotationTimeline||null),scale:new _(new i(0,0),this._handleVectorValue(t.initialScale,new i(1,1)),t.scaleTimeline||null)},strokeStyle:t.strokeStyle||"#000000FF",fillStyle:this._handleColorValue(t.fillStyle,"#000000")};return new y(s,this)}}return e})()}));
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["PS"] = factory();
+	else
+		root["PS"] = factory();
+})(self, function() {
+return /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "Color": () => (/* reexport */ Color),
+  "ColorFunction": () => (/* reexport */ ColorFunction),
+  "ColorGenerator": () => (/* reexport */ ColorGenerator),
+  "ColorRange": () => (/* reexport */ ColorRange),
+  "Particle": () => (/* reexport */ Particle),
+  "ParticleSystem": () => (/* reexport */ ParticleSystem),
+  "ScalarFunction": () => (/* reexport */ ScalarFunction),
+  "ScalarGenerator": () => (/* reexport */ ScalarGenerator),
+  "ScalarRange": () => (/* reexport */ ScalarRange),
+  "Sprite": () => (/* reexport */ Sprite),
+  "SpriteSheet": () => (/* reexport */ SpriteSheet),
+  "TraceList": () => (/* reexport */ TraceList),
+  "TraceSheet": () => (/* reexport */ TraceSheet),
+  "Vector": () => (/* reexport */ Vector),
+  "VectorArcRange": () => (/* reexport */ VectorArcRange),
+  "VectorFunction": () => (/* reexport */ VectorFunction),
+  "VectorGenerator": () => (/* reexport */ VectorGenerator),
+  "VectorRange": () => (/* reexport */ VectorRange)
+});
+
+;// CONCATENATED MODULE: ./src/MathUtils.js
+
+
+
+class MathUtils
+{
+    static getRandom(min, max)
+    {
+       return Math.random() * (max - min) + min;
+    }
+    static randomTranslation(min, max)
+    {
+        return Vector.getRandom(min,max);
+    }
+
+    static watchDelta (delta)
+    {
+        if(delta > 30)
+            return 17;
+
+        else
+            return delta;    
+    }
+    static lerp(x,y,a)
+    {
+       return x * (1 - a) + y * a;
+    }
+
+}
+
+
+;// CONCATENATED MODULE: ./src/Vector.js
+
+
+
+class Vector
+{   
+    static rotateVector(v, angle)
+    {
+        v.x = v.x*Math.cos(angle) - v.y*Math.sin(angle);
+        v.y = v.x*Math.sin(angle) + v.y*Math.cos(angle);
+    }
+    static scaleVector(v, s)
+    {
+        v.x=v.x*s;
+        v.y=v.y*s;
+
+    }
+	equals(v)
+	{
+		return this.x == v.x && this.y == v.y;
+	}
+
+    isZero()
+    {
+        return( this.x== 0 && this.y==0);
+    }
+
+    translateInto(v,w)
+    {
+        v.x=this.x + w.x;
+        v.y=this.y + w.y;
+    }
+
+    rotateInto(v, angle)
+    {
+        v.x = this.x*Math.cos(angle) - this.y*Math.sin(angle);
+        v.y = this.x*Math.sin(angle) + this.y*Math.cos(angle);
+
+    }
+    scaleInto(v, s)
+    {
+        v.x=this.x*s;
+        v.y=this.y*s;
+ 
+
+    }
+    transformInto(v, Transform)
+    {
+
+        v.x = this.x*Math.cos(Transform.rotation) - this.y*Math.sin(Transform.rotation);
+        v.y = this.x*Math.sin(Transform.rotation) + this.y*Math.cos(Transform.rotation);
+
+        v.x=v.x*Transform.scale.x;
+        v.y=v.y*Transform.scale.y;
+
+       
+        //v.x+= Transform.translation.getValue(0).x;
+        //v.y+= Transform.translation.getValue(0).y;
+
+        //console.log("test: " + Transform.translation.getValue().y );
+
+        v.x+= Transform.translation.x;
+        v.y+= Transform.translation.y;
+
+    }
+
+    transformIntoValues(v, Transform, elapsed)
+    {
+        //console.log("rotation value:" +Transform.rotation.getValue())
+
+  
+
+        v.x = this.x*Math.cos(Transform.rotation.getValue(elapsed)) - this.y*Math.sin(Transform.rotation.getValue(elapsed));
+        v.y = this.x*Math.sin(Transform.rotation.getValue(elapsed)) + this.y*Math.cos(Transform.rotation.getValue(elapsed));
+
+  
+        v.x=v.x*Transform.scale.getValue(elapsed).x;
+        v.y=v.y*Transform.scale.getValue(elapsed).y;
+        
+
+
+       
+        //v.x+= Transform.translation.getValue(0).x;
+        //v.y+= Transform.translation.getValue(0).y;
+
+        //console.log("test: " + Transform.translation.getValue().y );
+
+        v.x+= Transform.translation.getValue(elapsed).x;
+        v.y+= Transform.translation.getValue(elapsed).y;
+
+        
+    }
+
+
+    constructor(x=0,y=0)
+    {
+        this.x=x;
+        this.y=y;
+
+    }
+
+    get width() {
+
+		return this.x;
+
+	}
+
+	set width( value ) {
+
+		this.x = value;
+
+	}
+
+	get height() {
+
+		return this.y;
+
+	}
+
+	set height( value ) {
+
+		this.y = value;
+
+	}
+
+	set( x, y ) {
+
+		this.x = x;
+		this.y = y;
+
+		return this;
+
+	}
+
+    add(v)
+    {
+        this.x += v.x;
+        this.y += v.y;
+    }
+    addXY(x,y)
+    {
+        this.x += x;
+        this.y += y;
+    }
+
+    addInto(v,w)
+    {
+        this.x = v.x + w.x;
+        this.y = v.y + w.y;
+
+    }
+    copy()
+    {
+        return new Vector(this.x, this.y);
+
+    }
+
+    copyInto(v)
+    {
+        this.x = v.x;
+        this.y = v.y;
+    }
+    static getRandom(min, max)
+    {
+        if(!min || !max)
+        {
+            console.error("min or max are not defined please correct your inputs");
+            return new Vector(0,0);
+
+        }
+
+        if(min.x >max.x || min.y > max.y)
+        {
+            console.error("Trying to generate a random number with the wrong parameters, min is greater than max for example\n a Default vector has been created please correct the inputs")
+            return new Vector(0,0)
+        }
+
+        return new Vector(
+            MathUtils.getRandom(min.x, max.x),
+            MathUtils.getRandom(min.y, max.y)
+             );
+
+    }
+
+    lerpInto(v, w , a)
+    {
+        this.x = MathUtils.lerp (v.x , w.x , a);
+        this.y = MathUtils.lerp (v.y , w.y ,a );
+        //return x * (1 - a) + y * a;
+    }
+    
+}
+Vector.Zero = new Vector(0,0);
+
+
+;// CONCATENATED MODULE: ./src/Color.js
+class Color
+{
+	
+	constructor(r,g,b)
+	{
+		//var fromHex = Color.hexToRGB(hex);	
+		
+		this.r = r;
+		this.g = g;
+		this.b = b;
+	}
+	
+	getRGB()
+	{
+		return "rgb("+ +this.r + "," + +this.g + "," + +this.b + ")";
+
+	}
+	
+
+    static  hexToRGB(h) {
+        let r = 0, g = 0, b = 0;
+      
+        // 3 digits
+        if (h.length == 4) {
+          r = "0x" + h[1] + h[1];
+          g = "0x" + h[2] + h[2];
+          b = "0x" + h[3] + h[3];
+      
+        // 6 digits
+        } else if (h.length == 7) {
+          r = "0x" + h[1] + h[2];
+          g = "0x" + h[3] + h[4];
+          b = "0x" + h[5] + h[6];
+        }
+        
+        return new Color(parseInt(r), parseInt(g), parseInt(b));
+    
+	}
+
+}
+
+
+;// CONCATENATED MODULE: ./src/Generators/VectorGenerator.js
+
+
+
+class VectorGenerator
+{
+    constructor()
+    {
+  
+    }
+
+    generate()
+    {
+        console.error("Please override me called from vector generator");
+    }
+}
+
+class VectorRange extends VectorGenerator
+{
+    constructor(min, max)
+    {
+        
+        super();
+        this.min = min;
+        this.max = max;
+
+    }
+
+    generate()
+    {
+        return Vector.getRandom(this.min, this.max);
+
+    }
+
+
+}
+
+class VectorArcRange extends VectorGenerator
+{
+    constructor(arcStart, arcEnd, vStart, vEnd)
+    {
+        super();
+        this.arcStart = arcStart ;
+        this.arcEnd = arcEnd ;
+        this.vStart = vStart;
+        this.vEnd = vEnd;
+
+
+    }
+
+    generate()
+    {
+        var angle = MathUtils.getRandom(this.arcStart, this.arcEnd);
+        var speed =MathUtils.getRandom(this.vStart, this.vEnd);
+        return new Vector(speed*Math.cos(angle) , speed*Math.sin(angle));
+    }
+
+}
+
+class VectorFunction
+{
+    constructor(f, param)
+    {
+        this.f = f;
+        this.param = param;
+    }
+
+}
+
+
+
+;// CONCATENATED MODULE: ./src/Generators/ColorGenerator.js
+
+
+
+class ColorGenerator 
+{
+	constructor()
+    {
+  
+    }
+
+    generate()
+    {
+        console.error("Please override me called from Color Generator");
+    }
+		
+	
+	
+}
+
+class ColorRange extends ColorGenerator
+{
+    constructor(min, max)//GET AS HEX STRING
+    {
+		super();
+        this.min = Color.hexToRGB(min);//gets new color
+        this.max = Color.hexToRGB(max);//gets new color
+    }
+    
+    generate()
+    {
+        var result = new Color(MathUtils.getRandom(this.min.r, this.max.r) , MathUtils.getRandom(this.min.g, this.max.g),  MathUtils.getRandom(this.min.b, this.max.b) );
+        return result.getRGB();
+    }
+
+}
+
+class ColorFunction
+{
+    constructor(f,param)
+    {
+        this.f=f;
+        this.param = param;
+    }
+
+}
+
+
+
+;// CONCATENATED MODULE: ./src/Generators/ScalarGenerator.js
+
+
+
+class ScalarGenerator
+{
+    constructor()
+    {
+  
+    }
+
+    generate()
+    {
+        console.error("Please override me called from Scalar Generator");
+    }
+}
+
+class ScalarRange extends ScalarGenerator
+{
+    constructor(min,max)
+    {
+        super();
+        this.min = min;
+        this.max = max;
+    }
+
+    generate()
+    {
+        return MathUtils.getRandom(this.min, this.max);
+    }
+
+}
+class ScalarFunction
+{
+    constructor(f,param)
+    {
+        this.f=f;
+        this.param = param;
+    }
+
+}
+
+
+;// CONCATENATED MODULE: ./src/Particle.js
+
+
+//import {Particle} from './Particle.js'
+
+
+class Particle
+{
+
+    constructor( parameters, particleSystem )
+    {
+        this._PS = particleSystem;
+        this._delta = 0;
+        this.TTL    =           parameters.TTL;
+        this.elapsed=           parameters.elapsed || 0;
+        this.velocity = parameters.velocity || new Vector(0,0);
+        this.angularSpeed =  parameters.angularSpeed;
+        this.scaleVelocity = parameters.scaleVelocity;
+        this.trace = parameters.trace || null;
+        this.creationTime = performance.now();
+        this.currTime = performance.now();
+        this.strokeStyle = parameters.strokeStyle || "#000000FF";
+        this.fillStyle = parameters.fillStyle;
+
+        this.timelineOffset = parameters.timelineOffset || 0;
+        
+        this.timeLineElapsed = 0;
+        this.isPlaying = parameters.autoplay || true;
+        
+
+
+        this.Transform = parameters.Transform;
+        
+        /*{
+            translation : parameters.translation || new Vector(0,0),
+            rotation : parameters.rotation||0,
+            scale : parameters.scale || new Vector(1,1)
+        }*/
+
+        
+    }
+
+    timelinePlay()
+    {
+        this.isPlaying = true;
+    }
+    timelineStop()
+    {
+        this.isPlaying = false;
+    }
+
+    timelineRewind()
+    {
+        this.timeLineElapsed =0;
+    }
+    timeLineSetTime(t)
+    {
+        this.timeLineElapsed = t;
+    }
+
+
+    updateTranslation()
+    {
+
+        this.Transform.translation.dynamic.addXY(this.velocity.x*this._delta/1000, this.velocity.y*this._delta/1000);
+        
+               
+    }
+
+    updateRotation()
+    {
+        this.Transform.rotation.dynamic +=(this.angularSpeed*this._delta/1000);
+
+    }
+    updateScale()
+    {
+        this.Transform.scale.dynamic.addXY(this.scaleVelocity.x*this._delta/1000, this.scaleVelocity.y*this._delta/1000);
+    }
+
+    updateTransforms()
+    {
+        this.updateTranslation();
+        this.updateRotation();
+        this.updateScale();
+
+
+    }
+
+    tick()
+    {
+        this._delta = performance.now() - this.currTime;
+
+        this._delta = MathUtils.watchDelta(this._delta);
+
+        this.elapsed += this._delta; 
+
+        if(this.isPlaying)
+        {
+            this.timeLineElapsed+= this._delta;
+        }
+
+        this.currTime = performance.now();
+
+        this._PS.context.lineWidth = 10;
+
+
+        if(this._PS.hasCanvas() && this._PS.hasContext())
+        {
+
+            this.updateTransforms();
+        
+      
+            /*DO THE DRAWING*/
+			this.trace.tick(this);
+
+            
+
+            //FILL TEST
+            if(typeof (this.fillStyle) == 'function')
+            {
+                this._PS.context.fillStyle = this.fillStyle(this.elapsed);
+                
+            }
+            else{
+                    this._PS.context.fillStyle   = this.fillStyle;                
+            }
+            this._PS.context.fill();
+            //END FILL
+
+
+           //STROKE TEST            
+            if(typeof (this.strokeStyle) == 'function')
+            {
+                this._PS.context.strokeStyle = this.strokeStyle(this.elapsed);
+            }
+            else{
+                    this._PS.context.strokeStyle   = this.strokeStyle;                
+            }
+
+            this._PS.context.stroke();
+            //END STROKE
+             
+           
+
+        }
+
+    }
+    //type
+
+}
+
+
+;// CONCATENATED MODULE: ./src/Sprites/Sprite.js
+class Sprite
+{
+    constructor(){}
+
+}
+
+class TraceList extends Sprite
+{
+    constructor(traces)
+    {
+        super();
+        this.traces = traces;
+    }
+
+    tick(particle)
+    {
+        for(var i=0;i<this.traces.length;i++)
+        {
+
+            this.traces[i].tick(particle._PS.context, particle.Transform, particle);
+        }
+    }
+}
+class SpriteSheet extends Sprite
+{
+    //constructor(img,  ncols = 1 , nrows = 1, maxSprites = 1,  frameWidth, frameHeight, timePerFrame=200, rotateFromCenter = true, autoplay = true )
+    constructor(par)
+    {
+        super();
+        this.img = par.img;
+        this.maxSprites = par.maxSprites || 1;
+        
+        
+        if(!par.frameWidth)
+        {    console.error("set the frame width correctly");
+            this.frameWidth = 0;
+        }
+        else
+            this.frameWidth = par.frameWidth;
+        
+
+        if(!par.frameHeight)
+        {    
+            console.error("set the frame height correctly");
+            this.frameHeight = 0;
+        }
+        else
+            this.frameHeight = par.frameHeight;
+            
+        
+        this.ncols = par.ncols || 1;
+        this.nrows = par.nrows || 1;
+        
+
+        this.rotateFromCenter = par.rotateFromCenter || true;
+        this.autoplay = par.autoplay || true;
+        this.loop = true;
+        this.frameTime = par.frameTime || 200;
+        this.currentSprite = par.curFrame || 0;
+        this.maxTime = 1800;
+        this.elapsed = 0;
+    }
+
+    setFrame(n)
+    {
+        this.currentSprite = n;
+    }
+
+    tick(particle)
+    {
+        if(this.autoplay)
+            this.elapsed = particle.elapsed;
+        
+        
+        
+        var ctx = particle._PS.context;
+
+        ctx.translate(particle.Transform.translation.getValue(particle.elapsed).x  , particle.Transform.translation.getValue(particle.elapsed).y);
+        ctx.scale(particle.Transform.scale.getValue(particle.elapsed).x, particle.Transform.scale.getValue(particle.elapsed).y);
+        ctx.rotate(particle.Transform.rotation.getValue(particle.elapsed));
+
+        if(this.loop)
+            this.currentSprite =  ( Math.floor( this.elapsed / this.frameTime )) % this.maxSprites;  
+        else    
+            this.currentSprite = Math.floor( this.elapsed / this.frameTime );
+
+        
+        ctx.drawImage(this.img,
+            (this.currentSprite % this.ncols)*this.frameWidth,
+            Math.floor(this.currentSprite / this.ncols)*this.frameHeight ,
+            this.frameWidth, this.frameHeight  ,  this.rotateFromCenter?-this.frameWidth / 2:0, this.rotateFromCenter?-this.frameHeight / 2:0, this.frameWidth, this.frameHeight);//, 0, 0, this.frameWidth, this.frameHeight);
+  
+   
+        
+        //RESET
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    }
+
+}
+class TraceSheet extends Sprite {}
+
+
+;// CONCATENATED MODULE: ./src/VariableWatcher/VariableWatcher.js
+class VariableWithTimeline
+{
+    constructor(val, dynamic, timeline)//both references if objects
+    {
+        this.val = val;
+        this.dynamic = dynamic;
+        this.timeline = timeline;
+        
+
+    }
+
+    getValue(t)
+    {
+        //returns the sum of base and timeline.
+        console.error("has to be implemented");
+    }
+    getbase()
+    {
+        //returns the base
+        console.error("has to be implemented");
+    }
+    getTimelineValue(t)
+    {
+        //returns the timeline
+        console.error("has to be implemented")
+    }
+
+}
+
+class ScalarValue extends VariableWithTimeline
+{
+    constructor(val,dynamic, timeline=null)
+    {
+        super(val, dynamic, timeline);
+    }
+
+    getValue(t = 0)
+    {
+        if(this.timeline)
+        {
+            this.val = this.dynamic + this.timeline.getValue(t);
+        }
+        else
+        {
+            this.val = this.dynamic;
+        }
+        return this.val;
+    }
+}
+
+class VectorValue extends VariableWithTimeline
+{
+    //VECTOR, VECTOR, TIMELINE
+    constructor( val, dynamic, timeline = null)
+    {
+        super(val, dynamic, timeline);
+    }
+
+    getValue(t = 0)
+    {
+        if(this.timeline)
+        {
+            this.val.addInto(this.dynamic, this.timeline.getValue(t));
+        }
+        else
+        {
+            this.val.copyInto(this.dynamic);
+        }
+
+        return this.val;
+    }
+
+} 
+
+class ColorValue extends (/* unused pure expression or super */ null && (VariableWithTimeline))
+{
+
+
+}
+
+
+
+;// CONCATENATED MODULE: ./src/ParticleSystem.js
+
+
+
+
+
+
+
+
+
+
+class ParticleSystem
+{
+    constructor(parameters)
+    {
+        this._delta=0;
+        this.elapsed=0;
+        this.currTime = performance.now();
+        this.parameters = parameters;
+        this.maxParticles = parameters.maxParticles || 5;
+     
+        this.canvas     =       parameters.canvas || null;
+        this.context = this.canvas.getContext('2d') || null;
+
+        this.generationSpeed= parameters.generationSpeed || 5;
+        this.generationAllowance = this.generationSpeed;
+
+        this.particles = [];
+        this.particleGlobalIndex = 0;
+        
+       
+    }
+
+
+    hasCanvas()
+    {
+        return (this.canvas != null);
+    }
+    hasContext()
+    {
+        return(this.context != null);
+    }
+
+    tick()
+    {
+        this._delta = performance.now() - this.currTime;
+
+        this._delta = MathUtils.watchDelta(this._delta);
+
+        this.elapsed +=this._delta; 
+        this.currTime = performance.now();
+
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  
+
+        for(var i = 0 ; i < this.particles.length;i++)
+        {
+            //TODO
+            this.particles[i].tick();
+            
+                
+            if( this.particles[i].TTL != 0 && this.particles[i].elapsed >= this.particles[i].TTL)
+            {
+
+                this.particles[i]._PS = null;
+                this.particles.splice(i, 1);
+                
+            }
+        }
+
+
+        while(this.particles.length < this.maxParticles && this.generationAllowance >1)
+        {
+
+            this.particleGlobalIndex++;
+            this.particles.push( this._generateParticle(this.parameters, this.particles.length) );
+            this.generationAllowance--;
+
+         
+        }
+
+        this.generationAllowance+=this.generationSpeed*this._delta/1000;
+
+
+    }
+
+    _handleVectorValue(val, def, error="")
+    {
+        if(val)
+        {
+            
+            if(val instanceof(Vector))
+            {
+                return val.copy(); 
+            }
+            else if(val instanceof(VectorGenerator))
+            {
+                return val.generate();
+            }
+            else if(val instanceof(VectorFunction))
+            {
+                val.param.context = this;
+
+                return val.f(val.param);
+        
+            }
+            else{
+                console.error(error);
+
+            }
+           
+        }
+        else{
+            return def.copy();
+        }
+
+
+    }
+
+    _handleScalarValue(val, def, error="")
+    {
+        if(val)
+        {
+            if(typeof(val) == 'number' )
+            {
+                return val;
+            }
+            else if(val instanceof ScalarGenerator)
+            {
+                return val.generate();
+            }
+            else if(val instanceof ScalarFunction)
+            {
+                console.error("not implemented yet");
+                return def;
+            }
+            else{
+                console.error(error);
+            }
+
+        }
+        else {
+          
+            return def;
+        }
+
+    }
+    _handleColorValue(val, def="#000000", error)
+    {
+        if(val)
+        {
+            if(typeof(val) == 'string' )
+            {
+                //requires a well formed color
+                return val;
+            }
+            else if(val instanceof ColorGenerator)
+            {
+                return val.generate();
+            }
+            else if(val instanceof ColorFunction)
+            {
+                return def;
+            }
+            else{
+                console.error(error);
+            }
+
+        }
+        else {
+          
+            return def;
+        }
+
+    }
+
+
+
+  
+
+    _generateParticle(parameters, arrayIndex)
+    {            
+        //
+        var parametersParticle = {
+
+        TTL :  this._handleScalarValue(parameters.TTL, 0),
+         
+        elapsed: parameters.elapsed||0,
+        
+        velocity: this._handleVectorValue( parameters.initialVelocity , new Vector(0,0)),           
+        
+        angularSpeed : this._handleScalarValue(parameters.angularSpeed, 0 ,"ERROR WITH ANGULAR SPEED"),
+        
+        scaleVelocity: this._handleVectorValue( parameters.scaleVelocity , new Vector(0,0)),
+        
+        trace:parameters.trace,
+
+
+        Transform:{
+            translation :
+            new VectorValue(new Vector(0,0), this._handleVectorValue( parameters.initialPosition , new Vector(0,0)), parameters.translationTimeline || null  ),
+            rotation :
+             new ScalarValue(0 ,  this._handleScalarValue(parameters.initialRotation, 0) , parameters.rotationTimeline || null ), //this._handleScalarValue(this.parameters.initialRotation, 0),
+            scale :
+             new VectorValue(new Vector(0,0),this._handleVectorValue( parameters.initialScale , new Vector(1,1)) , parameters.scaleTimeline || null)
+            
+        },
+        
+        
+        strokeStyle :parameters.strokeStyle || "#000000FF",
+
+        fillStyle : this._handleColorValue(parameters.fillStyle,"#000000")
+
+
+        };
+        
+
+        return new Particle(parametersParticle, this);
+    }
+
+}
+
+
+;// CONCATENATED MODULE: ./src/index.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+console.log("TESTING THIS SHIT 2");
+
+let vec = new Vector(5,5);
+
+console.log(vec);
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function(){
+	
+	
+	let a = new VectorRange( new Vector(0,0) , new Vector(100,100));
+	let b =  new ScalarRange(-Math.PI, Math.PI);
+	let c = new ColorRange( "#fcf727", "#ff0000");
+	let myColor = new Color(0,0,0);
+	
+	//let anotha = new VGenerators.VectorRange(new Vector(-400,000), new Vector(0,800));
+	let an = new VectorRange(new Vector(-400,0) , new Vector(0,800));
+
+	let p = new Particle({});
+	
+	var theSpritesheet =  new SpriteSheet(
+		{
+				img: document.getElementById("fire-fx"),
+				//ncols:9,
+				//nrows:4,
+				//maxSprites: 36,
+				frameWidth: 700,
+				frameHeight: 393,
+				//frameTime : 100
+		});
+
+	console.log("generator : " +JSON.stringify(theSpritesheet));
+
+
+	
+	
+	  var canvas = document.createElement("canvas");
+	  canvas.width = 1600;
+      canvas.height = 1200;
+      document.querySelector("body").prepend(canvas);
+	  canvas.style.position = 'fixed';
+	  //canavs.style.top = '0px';
+	  canvas.style.zIndex='400';
+	  
+	  
+	  
+	  	  var JSparameters = {
+		  
+		  trace: theSpritesheet,
+
+		  maxParticles:45,
+		  generationSpeed:1000,
+		  TTL:6000,
+		  initialPosition: new VectorRange(new Vector(-400,0) , new Vector(0,800)),
+		  fillStyle: c,
+		  
+		  strokeStyle:function(t){
+			return "transparent"; 
+		  },
+		  
+		  canvas:canvas,
+		  initialVelocity: new VectorRange(new Vector(100,-400), new Vector(500,400)),
+		  initialScale:new Vector(5,5),
+		   angularSpeed: b,//Math.PI*2
+	
+		  };
+		  
+		  
+		var particleSystem = new ParticleSystem(JSparameters);
+
+		  
+		  
+	  function animate()
+	  {	
+		  particleSystem.tick();
+		  window.requestAnimationFrame(animate);
+		  //console.log("ticking");
+	  }
+	  
+	  animate();
+		
+	  
+	  
+	
+	
+});*/
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});

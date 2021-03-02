@@ -7,6 +7,10 @@ module.exports = {
     filename: 'min.js',
     library: 'PS',
     libraryTarget: 'umd',
-  }
+  },
+  optimization: {
+		// We no not want to minimize our code.
+		minimize: false
+	}
   
 };

@@ -1,18 +1,21 @@
 import { Vector } from './Vector.js';
 import { Color } from './Color.js';
 import {VectorGenerator, VectorRange, VectorArcRange, VectorFunction} from './Generators/VectorGenerator.js'
-import {ColorGenerator, ColorRange, ColorFunction} from './Generators/ColorGenerator.js'
+import {ColorGenerator, ColorRange, ColorFunction, ColorList} from './Generators/ColorGenerator.js'
 import {ScalarGenerator, ScalarRange, ScalarFunction} from './Generators/ScalarGenerator.js'
 import {Particle} from './Particle.js'
 import {Sprite, TraceList, SpriteSheet, TraceSheet} from './Sprites/Sprite.js'
 import {ParticleSystem} from './ParticleSystem.js'
+import {ScalarTimeline , VectorTimeline, ColorTimeline} from './Timeline/Timeline.js'
+
 
 
 export {Vector, Color,  VectorGenerator, VectorRange, VectorArcRange, VectorFunction,
-ColorGenerator, ColorRange, ColorFunction,
+ColorGenerator, ColorRange, ColorFunction, ColorList,
 ScalarGenerator, ScalarRange, ScalarFunction,
 Sprite, TraceList, SpriteSheet, TraceSheet,
-Particle, ParticleSystem};
+Particle, ParticleSystem,
+ScalarTimeline , VectorTimeline, ColorTimeline};
 
 
 /*

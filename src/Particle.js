@@ -20,6 +20,7 @@ class Particle
         this.currTime = performance.now();
         this.strokeStyle = parameters.strokeStyle || "#000000FF";
         this.fillStyle = parameters.fillStyle;
+		this.color = parameters.color;
 
         this.timelineOffset = parameters.timelineOffset || 0;
         
@@ -87,11 +88,18 @@ class Particle
 
     tick()
     {
+		
+		
         this._delta = performance.now() - this.currTime;
 
         this._delta = MathUtils.watchDelta(this._delta);
 
         this.elapsed += this._delta; 
+
+		//TICK HERE TOO
+		
+		if(this.TTL >0 && this.elapsed >= this.TTL)
+			return;
 
         if(this.isPlaying)
         {
@@ -121,7 +129,7 @@ class Particle
                 
             }
             else{
-                    this._PS.context.fillStyle   = this.fillStyle;                
+                    this._PS.context.fillStyle = this.fillStyle;                
             }
             this._PS.context.fill();
             //END FILL

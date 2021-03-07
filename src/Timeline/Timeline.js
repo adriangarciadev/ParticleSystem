@@ -1,3 +1,7 @@
+import { Vector } from '../Vector.js';
+import { Color } from '../Color.js';
+import {MathUtils} from '../MathUtils.js'
+
 class timeline
 {
     constructor(parameters)//values: array 
@@ -26,7 +30,7 @@ class timeline
 
         var a = (t- t0) /(this.values[leftIndex+1][0] - t0);
           
-        this.value =  JSMath.lerp( ( leftIndex < 0? 0 :this.values[leftIndex][1]) , this.values[leftIndex+1][1] ,a);      
+        this.value =  MathUtils.lerp( ( leftIndex < 0? 0 :this.values[leftIndex][1]) , this.values[leftIndex+1][1] ,a);      
 
     }
 
@@ -66,7 +70,7 @@ class timeline
     
     }
 
-    findIntervalBorderIndex = function (point, useRightBorder = false) {
+    findIntervalBorderIndex (point, useRightBorder = false) {
         //If point is beyond given intervals
         if (point <  this.values[0][0])
           return -1
@@ -91,3 +95,78 @@ class timeline
 
 
 }
+
+
+class ScalarTimeline extends timeline
+{
+    constructor(parameters)
+    {
+        //values =  matrix
+        // [ [tn , vn],[tn+1, vn+1] ]
+        //time0 < time1 <time2
+        //
+        
+        super(parameters);
+        this.value = 0 ;
+
+    }
+
+
+
+}
+
+class VectorTimeline extends timeline
+{
+    constructor(parameters)
+    {
+        super(parameters);
+        this.value = new Vector(0,0);
+    }
+
+    copy(val)
+    {
+        this.value.copyInto(val);
+
+    }
+
+    doLerp(leftIndex, t)
+    {
+
+        var t0 = leftIndex<0 ? 0 :this.values[leftIndex][0];
+
+        var a = (t- t0) /(this.values[leftIndex+1][0] - t0);
+      
+        this.value.lerpInto( ( leftIndex < 0? Vector.Zero :this.values[leftIndex][1]) , this.values[leftIndex+1][1] , a);
+    }
+
+
+}
+
+class ColorTimeline extends timeline
+{
+    constructor(parameters)
+    {
+        super(parameters);
+        this.value = new Color(0,0,0);
+    }
+
+    copy(val)
+    {
+        this.value.copyInto(val);
+
+    }
+
+    doLerp(leftIndex, t)
+    {
+
+        var t0 = leftIndex<0 ? 0 :this.values[leftIndex][0];
+
+        var a = (t- t0) /(this.values[leftIndex+1][0] - t0);
+      
+        this.value.lerpInto( ( leftIndex < 0? Color.Zero :this.values[leftIndex][1]) , this.values[leftIndex+1][1] , a);
+    }
+
+
+}
+
+export {ScalarTimeline , VectorTimeline, ColorTimeline}

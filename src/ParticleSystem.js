@@ -1,12 +1,15 @@
 import { Vector } from './Vector.js';
 import {MathUtils} from './MathUtils.js'
 import {Particle} from './Particle.js'
+import {Color} from './Color.js'
 
 import * as ScalarGenerators from './Generators/ScalarGenerator.js'
 import * as VectorGenerators from './Generators/VectorGenerator.js'
-import * as ColorGenerators from './Generators/ColorGenerator.js'
+//import * as ColorGenerators from './Generators/ColorGenerator.js'
+import {ColorGenerator, ColorList, ColorFunction,  } from './Generators/ColorGenerator.js'
 
 import {ScalarValue, VectorValue, ColorValue} from './VariableWatcher/VariableWatcher.js'
+import {ScalarTimeline , VectorTimeline, ColorTimeline} from './Timeline/Timeline.js'
 
 class ParticleSystem
 {
@@ -26,6 +29,8 @@ class ParticleSystem
 
         this.particles = [];
         this.particleGlobalIndex = 0;
+		
+		this.clear =( typeof parameters.clear !== 'undefined') ? parameters.clear : true;
         
        
     }
@@ -42,6 +47,7 @@ class ParticleSystem
 
     tick()
     {
+		
         this._delta = performance.now() - this.currTime;
 
         this._delta = MathUtils.watchDelta(this._delta);
@@ -49,22 +55,26 @@ class ParticleSystem
         this.elapsed +=this._delta; 
         this.currTime = performance.now();
 
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  
+		if(this.clear){
+			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		}
 
         for(var i = 0 ; i < this.particles.length;i++)
         {
             //TODO
-            this.particles[i].tick();
-            
+               
                 
-            if( this.particles[i].TTL != 0 && this.particles[i].elapsed >= this.particles[i].TTL)
+            if( this.particles[i].TTL > 0 && this.particles[i].elapsed >= this.particles[i].TTL)
             {
 
                 this.particles[i]._PS = null;
                 this.particles.splice(i, 1);
+				i--;
                 
             }
+			else	
+				this.particles[i].tick();
+         
         }
 
 
@@ -74,7 +84,7 @@ class ParticleSystem
             this.particleGlobalIndex++;
             this.particles.push( this._generateParticle(this.parameters, this.particles.length) );
             this.generationAllowance--;
-
+			
          
         }
 
@@ -144,20 +154,24 @@ class ParticleSystem
         }
 
     }
-    _handleColorValue(val, def="#000000", error)
+    _handleColorValue(val, def= new Color(0,0,0), error)
     {
         if(val)
         {
             if(typeof(val) == 'string' )
             {
                 //requires a well formed color
-                return val;
+                return Color.hexToRGB(val);
             }
-            else if(val instanceof ColorGenerators.ColorGenerator)
+			else if(val instanceof Color )
+			{
+				return val;
+			}
+            else if(val instanceof ColorGenerator)
             {
                 return val.generate();
             }
-            else if(val instanceof ColorGenerators.ColorFunction)
+            else if(val instanceof ColorFunction)
             {
                 return def;
             }
@@ -208,11 +222,18 @@ class ParticleSystem
         
         strokeStyle :parameters.strokeStyle || "#000000FF",
 
-        fillStyle : this._handleColorValue(parameters.fillStyle,"#000000")
-
-
-        };
-        
+        fillStyle : this._handleColorValue(parameters.fillStyle,"#000000"),
+		
+		color : 	
+		( typeof parameters.color !== 'undefined' || typeof parameters.colorTimeline !== 'undefined' )?
+		  new ColorValue( new Color(0,0,0,0) ,   this._handleColorValue(parameters.color, new Color(0,0,0,0)) , parameters.colorTimeline || null  )
+		:null
+				
+		
+		};
+		
+		//console.log("another color test:" + JSON.stringify(parametersParticle.color))
+		 
 
         return new Particle(parametersParticle, this);
     }

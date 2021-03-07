@@ -16,18 +16,24 @@ class VectorGenerator
 
 class VectorRange extends VectorGenerator
 {
-    constructor(min, max)
+    constructor(min, max, aspectRatio = false)
     {
         
         super();
         this.min = min;
         this.max = max;
-
+		this.aspectRatio = aspectRatio;
     }
 
     generate()
     {
-        return Vector.getRandom(this.min, this.max);
+		if(this.aspectRatio)
+		{
+			var num = Math.random();
+			return new Vector( num *(this.max.x - this.min.x) + this.min.x, num*(this.max.y - this.min.y) + this.min.y);
+		}
+		else
+			return Vector.getRandom(this.min, this.max);
 
     }
 
@@ -36,13 +42,14 @@ class VectorRange extends VectorGenerator
 
 class VectorArcRange extends VectorGenerator
 {
-    constructor(arcStart, arcEnd, vStart, vEnd)
+    constructor(arcStart, arcEnd, vStart, vEnd, vOffset = Vector.Zero)
     {
         super();
         this.arcStart = arcStart ;
         this.arcEnd = arcEnd ;
         this.vStart = vStart;
         this.vEnd = vEnd;
+		this.vOffset = vOffset;
 
 
     }
@@ -51,7 +58,7 @@ class VectorArcRange extends VectorGenerator
     {
         var angle = MathUtils.getRandom(this.arcStart, this.arcEnd);
         var speed =MathUtils.getRandom(this.vStart, this.vEnd);
-        return new Vector(speed*Math.cos(angle) , speed*Math.sin(angle));
+        return new Vector(this.vOffset.x + speed*Math.cos(angle) , this.vOffset.y + speed*Math.sin(angle));
     }
 
 }

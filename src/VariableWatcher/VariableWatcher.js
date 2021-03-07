@@ -74,7 +74,25 @@ class VectorValue extends VariableWithTimeline
 
 class ColorValue extends VariableWithTimeline
 {
+	//val = Color, dynamic = Color , timeline = colorTimeline
+    constructor( val, dynamic, timeline = null)
+    {
+        super(val, dynamic, timeline);
+    }
 
+    getValue(t = 0)
+    {
+        if(this.timeline)
+        {
+           this.val.addInto(this.dynamic, this.timeline.getValue(t));// this.val.addInto(this.dynamic, this.timeline.getValue(t));
+        }
+        else
+        {
+			this.val.copyInto(this.dynamic);
+        }
+
+        return this.val.getRGBA();
+    }
 
 }
 

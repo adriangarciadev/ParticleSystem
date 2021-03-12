@@ -18,6 +18,8 @@
 	
 	//when everything loads
 	window.addEventListener("load", function(){
+	document.getElementById("room").style.display ='block';
+
 
 		//particle system configuration
 	let birdSprite =  {
@@ -126,7 +128,7 @@
 	</div>
 	<div class="particle-showcase">
 		<img id="smoke" src="./smoke.png" style="display:none">
-		<img class = "fit" src="./room.jpg">
+		<img id="room" class = "fit" src="./room.jpg" style="display:none">
 		<canvas  width="1024" height="768" id="the-canvas" class="fit"></canvas>
 	</div>
 	

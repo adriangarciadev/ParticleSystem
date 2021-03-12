@@ -32,9 +32,7 @@ This code creates a simple particle system, you have to provide an image and som
 		}
   
 	var particleSystem = new PS.ParticleSystem(parameters);
-  
-  
-  
+    
   	function animate(){
 		particleSystem.tick();
 		window.requestAnimationFrame(animate);

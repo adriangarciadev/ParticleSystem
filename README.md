@@ -9,10 +9,11 @@ This code creates a simple particle system, you have to provide an image and som
 ```javascript
 
 	//when everything loads
-	window.addEventListener("load", function(){
+	window.addEventListener("load", function()
+	{
 
-	let parameters =  {
-		
+		let parameters =  
+		{
 		canvas: document.getElementById("the-canvas"),//the canvas where to draw provided by you in the HTML
 		maxParticles:600,//this particle system will hold max 600 particles.
 		generationSpeed:50,//generation speed 50 particles per second.
@@ -28,9 +29,7 @@ This code creates a simple particle system, you have to provide an image and som
 					frameWidth: 40, //just one frame 40 width
 					frameHeight: 40,//just one frame 40 width
 			}),
-		
-		
-	}
+		}
   
 	var particleSystem = new PS.ParticleSystem(parameters);
   

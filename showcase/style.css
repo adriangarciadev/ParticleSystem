@@ -6,6 +6,7 @@ canvas
 img.fit{
 	width:100%;
 	height:100%;
+	
 }
 div.particle-showcase
 {
@@ -22,6 +23,7 @@ canvas.fit
 	position:absolute;
 	z-index:2;
 	left:0px;
+	top:0px;
 
 }
 

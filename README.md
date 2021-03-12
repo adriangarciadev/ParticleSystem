@@ -12,6 +12,7 @@ This code creates a simple particle system, you have to provide an image and som
 	window.addEventListener("load", function(){
 
 	let parameters =  {
+		
 		canvas: document.getElementById("the-canvas"),//the canvas where to draw provided by you in the HTML
 		maxParticles:600,//this particle system will hold max 600 particles.
 		generationSpeed:50,//generation speed 50 particles per second.
@@ -20,14 +21,12 @@ This code creates a simple particle system, you have to provide an image and som
 		initialVelocity: new PS.VectorRange(new PS.Vector(400,100), new PS.Vector(600,200)),//initial velocity very little in y
 		initialScale: 	new PS.VectorRange(new PS.Vector(0.5,0.5), new PS.Vector(1.5,1.5), true),//random scale to give variation
 		angularSpeed: new PS.ScalarRange(-2*Math.PI, 2*Math.PI),//random angular speed  between -1 and 1 revolutions per second.
-
 		//the trace configuration of the element to draw
 		trace:   new PS.SpriteSheet(
 			{
 					img: document.getElementById("tree-swing-leaf"),//provide your own image by id
 					frameWidth: 40, //just one frame 40 width
 					frameHeight: 40,//just one frame 40 width
-									
 			}),
 		
 		
@@ -35,15 +34,10 @@ This code creates a simple particle system, you have to provide an image and som
   
 	var particleSystem = new PS.ParticleSystem(parameters);
   
+  
+  
   	function animate(){
-	
-		stats.begin();
-		
-		//STEP 3
 		particleSystem.tick();
-		
-		stats.end();
-		
 		window.requestAnimationFrame(animate);
 	}
 	animate();

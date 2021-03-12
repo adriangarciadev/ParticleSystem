@@ -1,6 +1,6 @@
 # ParticleSystem
 
-[Check the site](https://adriangarciadev.github.io/ParticleSystem/)
+[Check the site for examples!](https://adriangarciadev.github.io/ParticleSystem/)
 
 ### Usage ###
 

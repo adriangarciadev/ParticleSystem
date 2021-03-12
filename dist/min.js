@@ -121,6 +121,23 @@ class Vector
         v.y=v.y*s;
 
     }
+	
+	getLength()
+	{
+		return Math.sqrt( this.x*this.x + this.y*this.y);
+	}
+	getUnit()
+	{
+		let length  = this.getLength();
+		return new Vector(this.x/length, this.y/length);
+	}
+	
+	multiplyScalar(s)
+	{
+		this.x = this.x*s;
+		this.y = this.y*s;
+	}
+	
 	equals(v)
 	{
 		return this.x == v.x && this.y == v.y;
@@ -237,6 +254,12 @@ class Vector
 		return this;
 
 	}
+	setXY(x,y)
+	{
+		this.x = x;
+		this.y = y;
+
+	}
 
     add(v)
     {
@@ -297,6 +320,7 @@ class Vector
     
 }
 Vector.Zero = new Vector(0,0);
+Vector.Gravity = new Vector(0,980);
 
 
 ;// CONCATENATED MODULE: ./src/Color.js
@@ -452,7 +476,7 @@ class VectorRange extends VectorGenerator
 
     generate()
     {
-		if(this.aspectRatio)
+		if(this.aspectRatio == true)
 		{
 			var num = Math.random();
 			return new Vector( num *(this.max.x - this.min.x) + this.min.x, num*(this.max.y - this.min.y) + this.min.y);
@@ -641,8 +665,11 @@ class Particle
         this.TTL    =           parameters.TTL;
         this.elapsed=           parameters.elapsed || 0;
         this.velocity = parameters.velocity || new Vector(0,0);
-        this.angularSpeed =  parameters.angularSpeed;
+        this.acceleration = parameters.acceleration;
+		this.attractor  = parameters.attractor;
+		this.angularSpeed =  parameters.angularSpeed;
         this.scaleVelocity = parameters.scaleVelocity;
+		
         this.trace = parameters.trace || null;
         this.creationTime = performance.now();
         this.currTime = performance.now();
@@ -658,6 +685,8 @@ class Particle
 
 
         this.Transform = parameters.Transform;
+		this.shear = parameters.shear;
+		this.perspective = parameters.perspective;
         
         /*{
             translation : parameters.translation || new Vector(0,0),
@@ -690,8 +719,29 @@ class Particle
     updateTranslation()
     {
 
-        this.Transform.translation.dynamic.addXY(this.velocity.x*this._delta/1000, this.velocity.y*this._delta/1000);
+		//this.Transform.translation.dynamic.addXY(this.velocity.x*this._delta/1000, this.velocity.y*this._delta/1000);
+		
+		let attractorAcceleration = Vector.Zero;
+		let val = this.Transform.translation.getValue(this.elapsed);
+		
+		if(this.attractor)
+		{
+			let distance =  new Vector( this.attractor.translation.x - val.x,   this.attractor.translation.y-val.y  );
+		
+			if(this.attractor.radius == 0 || distance.getLength() < this.attractor.radius)
+			{	
+				
+				attractorAcceleration = new Vector( this.attractor.translation.x - val.x,   this.attractor.translation.y-val.y  );
+				attractorAcceleration = attractorAcceleration.getUnit();
+				attractorAcceleration.multiplyScalar(this.attractor.strength);
+			}
+		}
+		this.Transform.translation.dynamic.addXY((this.velocity.x + this._delta/1000 * (this.acceleration.x+attractorAcceleration.x)/2 )*this._delta/1000, (this.velocity.y+ this._delta/1000 * (this.acceleration.y+attractorAcceleration.y)/2)*this._delta/1000);
         
+		this.velocity.addXY((this.acceleration.x+attractorAcceleration.x) * this._delta/1000 , (this.acceleration.y+attractorAcceleration.y) * this._delta/1000 ); 
+		
+		
+		//timestep * (velocity + timestep * acceleration / 2);
                
     }
 
@@ -710,7 +760,6 @@ class Particle
         this.updateTranslation();
         this.updateRotation();
         this.updateScale();
-
 
     }
 
@@ -855,7 +904,7 @@ class SpriteSheet extends Sprite
 		this.privateCanvas = document.createElement("canvas");
 			this.privateCanvas.width =  this.frameWidth;
 			this.privateCanvas.height = this.frameHeight;
-			//this.privateCanvas.style.visibility ='hidden';
+			this.privateCanvas.style.display ='none';
 			document.querySelector("body").prepend(this.privateCanvas);
 		
 		this.optElements = par.prerenderNum || 16;
@@ -868,6 +917,8 @@ class SpriteSheet extends Sprite
 		
 		this.compositeOperation ='source-over';// par.compositeOperation || 'source-over';
 		
+		this.atlasMode = par.atlasMode || null;
+		this.atlasIndex = 0;
 		
 	
 		
@@ -930,20 +981,7 @@ class SpriteSheet extends Sprite
 			for(var i = 0 ; i < this.maxSprites ; i ++)
 			{
 				
-				let testObject = {
-					arg1 : (i % this.ncols)*this.frameWidth,
-					arg2 : Math.floor(i / this.ncols)*this.frameHeight, //La coordenada Y de la esquina superior izquierda del sub-rectangulo de la imagen origen a dibujar en el contexto de destino.
-					arg3 : this.frameWidth,    //El ancho para dibujar la imagen en el canvas destino.
-					arg4 : this.frameHeight,   //El alto para dibujar la imagen en el canvas destino
-					arg5: this.frameWidth*i,  //La coordenada X del canvas destino en la cual se coloca la esquina superior izquierda de la imagen origen.
-					arg6: this.frameHeight*j, //La coordenada Y del canvas destino en la cual se coloca la esquina superior izquierda de la imagen origen.
-					arg7: this.frameWidth,
-					arg8: this.frameHeight//, 0, 0, this.frameWidth, this.frameHeight);
-					
-				}
-				
-				//console.log("ARGUMENTS : " +JSON.stringify(testObject));
-								  
+									  
 				this.privateCtx.drawImage(this.img,
 					(i % this.ncols)*this.frameWidth,  //La coordenada X de la esquina superior izquierda del sub-rectangulo de la imagen origen 
 					Math.floor(i / this.ncols)*this.frameHeight, //La coordenada Y de la esquina superior izquierda del sub-rectangulo de la imagen origen a dibujar en el contexto de destino.
@@ -983,7 +1021,33 @@ class SpriteSheet extends Sprite
         ctx.translate( Math.floor(particle.Transform.translation.getValue(particle.elapsed).x  ),  Math.floor(particle.Transform.translation.getValue(particle.elapsed).y));
         ctx.scale( particle.Transform.scale.getValue(particle.elapsed).x, particle.Transform.scale.getValue(particle.elapsed).y);
         ctx.rotate(particle.Transform.rotation.getValue(particle.elapsed));
+		
+		
+		let shear = particle.shear.getValue(particle.elapsed);
+		ctx.transform(1, shear.x, shear.y, 1, 0, 0);//shear test
 
+		
+		let perspective = particle.perspective.getValue(particle.elapsed);
+
+		
+		let scale = 1;
+		let angle1 = perspective.x, angle2 = perspective.y;
+		let cs = Math.cos(angle1), sn = Math.sin(angle1);
+		let h = Math.cos(angle2);
+		let a = scale*cs, b = -scale*sn, c = 0;
+		let d = h*scale*sn, e = h*scale*cs, f = 0;
+		ctx.transform(a, d, b, e, c, f);
+
+
+		/*PERSPECTIVE TRANSFORM FOR FUTURE VERSIONS 
+		
+		var cs = Math.cos(angle1), sn = Math.sin(angle1);
+		var h = Math.cos(angle2);
+		var a = 100*cs, b = -100*sn, c = 200;
+		var d = h*100*sn, e = h*100*cs, f = 200;
+		ctx.setTransform(a, d, b, e, c, f);
+		*/
+	
         if(this.loop)
             this.currentSprite =  ( Math.floor( particle.elapsed / this.frameTime )) % this.maxSprites;  
         else    
@@ -996,6 +1060,23 @@ class SpriteSheet extends Sprite
 
 		//source-over
 		
+		if(this.atlasMode)
+		{
+			if(typeof particle.atlasIndex === 'undefined')
+			{
+					if(this.atlasMode ='sequential')
+					{
+						particle.atlasIndex = this.atlasIndex;
+						this.atlasIndex++;
+						
+					}
+					else
+						particle.atlasIndex = Math.floor(MathUtils.getRandom(0,maxSprites+1));
+						
+			}			
+			
+		}
+		
 		if(this.prerenderMode)
 		{
 			if(!this.isOptimized)
@@ -1006,7 +1087,7 @@ class SpriteSheet extends Sprite
 			if(typeof particle.prerenderIndex === 'undefined')
 			{
 				
-				//bad practice just fast.
+				//bad practice just fast to code right now.
 				if(this.color && this.color instanceof ColorList && !this.color.random)
 				{
 					particle.prerenderIndex = this.color.getSequence();
@@ -1018,7 +1099,6 @@ class SpriteSheet extends Sprite
 				}
 			}
 			
-			//console.log("curr index : " +  particle.prerenderIndex);
 			
 			ctx.drawImage(this.privateCanvas,
 				this.frameWidth*this.currentSprite,//this.frameWidth*particle.prerenderIndex,
@@ -1088,7 +1168,7 @@ class SpriteSheet extends Sprite
         
         //RESET
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-
+		//ctx.resetTransform();
     }
 
 }
@@ -1572,7 +1652,11 @@ class ParticleSystem
          
         elapsed: parameters.elapsed||0,
         
-        velocity: this._handleVectorValue( parameters.initialVelocity , new Vector(0,0)),           
+        velocity: this._handleVectorValue( parameters.initialVelocity , new Vector(0,0)),         
+
+		acceleration : parameters.acceleration || new Vector(0,0),
+		
+		attractor: parameters.attractor || null,
         
         angularSpeed : this._handleScalarValue(parameters.angularSpeed, 0 ,"ERROR WITH ANGULAR SPEED"),
         
@@ -1587,11 +1671,14 @@ class ParticleSystem
             rotation :
              new ScalarValue(0 ,  this._handleScalarValue(parameters.initialRotation, 0) , parameters.rotationTimeline || null ), //this._handleScalarValue(this.parameters.initialRotation, 0),
             scale :
-             new VectorValue(new Vector(0,0),this._handleVectorValue( parameters.initialScale , new Vector(1,1)) , parameters.scaleTimeline || null)
+             new VectorValue(new Vector(1,1),this._handleVectorValue( parameters.initialScale , new Vector(1,1)) , parameters.scaleTimeline || null)
             
         },
-        
-        
+		
+		shear :  new VectorValue(new Vector(0,0), this._handleVectorValue( parameters.shear , new Vector(0,0)), parameters.shearTimeline || null  ),
+		
+		perspective :  new VectorValue(new Vector(0,0), this._handleVectorValue( parameters.perspective , new Vector(0,0)), parameters.perspectiveTimeline || null  ),
+                
         strokeStyle :parameters.strokeStyle || "#000000FF",
 
         fillStyle : this._handleColorValue(parameters.fillStyle,"#000000"),

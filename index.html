@@ -4,24 +4,175 @@
 	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 	<meta content="utf-8" http-equiv="encoding">
 
-    <title>Getting Started With Webpack</title>
-	<style>
-		body{background-color:gray;}
-		canvas
-		{
-
-		}
-		
-	</style>
-  </head>
-  <body>
-	<h2>IMAGE BELOW THIS </h2>
-	<img id="fire-fx" src ="./showcase/leaf.png">
-	
-	<script src="./showcase/stats.min.js"></script>
+   <title>Getting Started With Webpack</title>
+   
+   <link rel="stylesheet" href="./showcase/style.css">
+   
+   </head>
+   
+   <body>
+  
+  	<script src="./showcase/stats.min.js"></script>
 	<script src="./showcase/dat.gui.min.js"></script>
     <script src="./dist/min.js"></script>
-    <script src="./showcase/custom.js"></script>
+    
+	<script type="text/javascript">
 	
-  </body>
+	//when everything loads
+	window.addEventListener("load", function(){
+	
+	let parameters =  {
+		canvas: document.getElementById("the-canvas"),
+		maxParticles:60,
+		generationSpeed:2,
+		TTL:6000,
+		initialPosition: new PS.Vector(512,0),
+		initialVelocity: new PS.VectorRange(new PS.Vector(0,200), new PS.Vector(0,200)),
+		attractor : {translation: new PS.Vector(0,0) , strength:-100000, radius: 100},
+		//rotationTimeline: new PS.ScalarTimeline({values:[[0,0], [2000, 0], [2500, Math.PI*2], [3000,Math.PI*4]], loop:false}),
+		//initialScale: new PS.VectorRange( new PS.Vector(0.2,0.2), new PS.Vector(2,2)),
+		scaleTimeline: new PS.VectorTimeline({values:[ [0, new PS.Vector(-0.9,-0.9)],  [100, new PS.Vector(0.1,0.1)],[150, new PS.Vector(-0.9,0.9)],[200, new PS.Vector(-0.8,-0.8)], [250, new PS.Vector(0,0)]], loop:false}),
+		//perspective: new PS.Vector(0,Math.PI/2.3),
+		//perspectiveTimeline: new PS.VectorTimeline({values:[ [0, new PS.Vector(0,0)], [1000, new PS.Vector(2*Math.PI , 2*Math.PI)], [3000, new PS.Vector(0,0)]], loop:true}),
+		//shear: new PS.Vector(1,-1),
+		clear:true,
+		
+
+		//the trace configuration of the element to draw
+		 trace:   new PS.SpriteSheet(
+			{
+					img: document.getElementById("JSPS"),
+					frameWidth: 256,
+					frameHeight: 256,
+					prerenderMode: true,
+		
+					
+			}),
+		
+		
+	}
+
+		//particle system configuration
+
+	
+	let parameters2 = {
+		canvas: document.getElementById("the-canvas"),
+		maxParticles:5,
+		generationSpeed:2,
+		TTL:6000,
+		initialPosition: new PS.VectorRange(new PS.Vector(0,0) , new PS.Vector(1024,0)),
+		initialVelocity: new PS.VectorRange(new PS.Vector(-300,200), new PS.Vector(-200,400)),
+		angularSpeed: new PS.ScalarRange(-2*Math.PI/16, 2*Math.PI/16),
+		attractor : {translation: new PS.Vector(0,0) , strength:-100000, radius: 100},
+		clear:false,
+		
+
+		//the trace configuration of the element to draw
+		 trace:   new PS.SpriteSheet(
+			{
+					img: document.getElementById("JSPSystem"),
+					frameWidth: 512,
+					frameHeight: 256,
+					prerenderMode: true,
+		
+					
+			}),
+		
+		
+	}
+
+	//BASIC PARAMETERS CONFIGURATION
+	var gui = new dat.gui.GUI();
+	var f1 = gui.addFolder('Basic Parameters')
+	f1.open();
+	f1.add(parameters, 'maxParticles').onChange(function(){systemChanged(parameters)});
+	f1.add(parameters, 'generationSpeed').onChange(function(){systemChanged(parameters)});
+	f1.add(parameters, 'TTL').onChange(function(){systemChanged(parameters)});
+	//BASIC PARAMETERS CONFIGURATION
+	function systemChanged(d)
+	{
+		particleSystem = new PS.ParticleSystem(d);
+	}
+	
+	
+	//mouse events interactions
+	parameters.canvas.addEventListener('mousemove', attractor, false);
+	parameters.canvas.addEventListener('mouseout', stopAttractor, false);
+	parameters.canvas.addEventListener('mouseenter', startAttractor, false);
+	
+	
+	function stopAttractor(evt){parameters.attractor.strength=0;}
+	function startAttractor(evt){parameters.attractor.strength=-10000;}
+	
+	//mouse move event function
+	function attractor(evt)
+	{
+		var rect = parameters.canvas.getBoundingClientRect();
+		let canvasPos = {
+			x: (evt.clientX - rect.left) / (rect.right - rect.left) * parameters.canvas.width,
+			y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * parameters.canvas.height
+		};
+		
+	
+		parameters.attractor.translation.x = canvasPos.x;
+		parameters.attractor.translation.y = canvasPos.y;
+		
+	}
+	
+	
+	//create the particle system
+	var particleSystem = new PS.ParticleSystem(parameters);
+	var particleSystem2 = new PS.ParticleSystem(parameters2);
+
+	
+	
+	//stats FPS counter 
+	//by Mr doob https://github.com/mrdoob/stats.js/
+	var stats = new Stats();
+	stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+	document.body.appendChild( stats.dom );
+
+	//the render loop  
+	function animate(){
+	
+		stats.begin();
+		
+		particleSystem.tick();
+		particleSystem2.tick();
+		
+		stats.end();
+		
+		window.requestAnimationFrame(animate);
+	}
+	animate();
+
+	});	
+	</script>
+	
+	<div class="menu">
+		<ul>
+			<li><a href="#" class="current">INDEX</a></li>
+			<li><a href="./showcase/treeswing/tree-swing.html">Swing</a></li>
+			<li><a href="./showcase/balloons/balloons.html">Ballooons</a></li>
+			<li><a href="./showcase/birdFlock/birds-flock.html">Birds</a></li>
+			<li><a href="./showcase/coins/coins.html">Coins</a></li>
+			<li><a href="./showcase/smoke/smoke.html">Smoke</a></li>
+	
+		</ul>
+		
+	</div>
+	<div class="particle-showcase">
+		<img id="JSPS" src="./showcase/JSPS.png" style="display:none">
+		<img id="JSPSystem" src="./showcase/JSystem.png" style="display:none">
+		<canvas  width="1024" height="768" id="the-canvas" class="fit"></canvas>
+	</div>
+	
+	<div class="parameters">
+		<p>
+			Welcome, JSParticleSystem is a lightweight particle generator aiming for simplicity and configurability, in this version it only supports context2D. see the examples or ask away. No time to build docs yet.
+		</p>
+	
+	</div>
+	
+	 </body>
 </html>

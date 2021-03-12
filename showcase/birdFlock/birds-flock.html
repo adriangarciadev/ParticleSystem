@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+  <head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+
+    <title>Getting Started With Webpack</title>
+	<link rel="stylesheet" href="../style.css">
+
+  </head>
+  <body>
+  
+  	<script src="../stats.min.js"></script>
+	<script src="../dat.gui.min.js"></script>
+    <script src="../../dist/min.js"></script>
+    
+	<script type="text/javascript">
+	
+	//when everything loads
+	window.addEventListener("load", function(){
+
+		//particle system configuration
+	let birdSprite =  {
+		 canvas: document.getElementById("bird-sprites"),
+		 maxParticles:60,
+		 generationSpeed:10,
+		 TTL:6000,
+		 initialPosition: new PS.VectorRange(new PS.Vector(0,0) , new PS.Vector(0,1000)),
+		initialVelocity: new PS.VectorRange(new PS.Vector(700,-400), new PS.Vector(900,-200)),
+		initialScale: 	new PS.VectorRange(new PS.Vector(-1.5, 1.5), new PS.Vector(-0.5 , 0.5), true),
+		attractor : {translation: new PS.Vector(0,0) , strength:-100000, radius: 100},
+
+		//the trace configuration of the element to draw
+		 trace:   new PS.SpriteSheet(
+			{
+					img: document.getElementById("bird-flock-sprite"),
+					ncols:5,
+					nrows:4,
+					maxSprites: 20,
+					frameWidth: 240,
+					frameHeight: 314,
+					frameTime : 30,
+					//prerenderMode: true,
+		
+					
+			}),
+		
+		
+	}
+
+	//BASIC PARAMETERS CONFIGURATION
+	var gui = new dat.gui.GUI();
+	var f1 = gui.addFolder('Basic Parameters')
+	f1.open();
+	f1.add(birdSprite, 'maxParticles').onChange(function(){systemChanged(birdSprite)});
+	f1.add(birdSprite, 'generationSpeed').onChange(function(){systemChanged(birdSprite)});
+	f1.add(birdSprite, 'TTL').onChange(function(){systemChanged(birdSprite)});
+	//BASIC PARAMETERS CONFIGURATION
+	function systemChanged(d)
+	{
+		particleSystem = new PS.ParticleSystem(d);
+	}
+	
+	
+	//mouse events interactions
+	birdSprite.canvas.addEventListener('mousemove', attractor, false);
+	birdSprite.canvas.addEventListener('mouseout', stopAttractor, false);
+	birdSprite.canvas.addEventListener('mouseenter', startAttractor, false);
+	
+	
+	function stopAttractor(evt){birdSprite.attractor.strength=0;}
+	function startAttractor(evt){birdSprite.attractor.strength=-10000;}
+	
+	//mouse move event function
+	function attractor(evt)
+	{
+		var rect = birdSprite.canvas.getBoundingClientRect();
+		let canvasPos = {
+			x: (evt.clientX - rect.left) / (rect.right - rect.left) * birdSprite.canvas.width,
+			y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * birdSprite.canvas.height
+		};
+		
+	
+		birdSprite.attractor.translation.x = canvasPos.x;
+		birdSprite.attractor.translation.y = canvasPos.y;
+		
+	}
+	
+	
+	//create the particle system
+	var particleSystem = new PS.ParticleSystem(birdSprite);
+	
+	
+	
+	//stats FPS counter 
+	//by Mr doob https://github.com/mrdoob/stats.js/
+	var stats = new Stats();
+	stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+	document.body.appendChild( stats.dom );
+
+	//the render loop  
+	function animate(){
+	
+		stats.begin();
+		
+		particleSystem.tick();
+		
+		stats.end();
+		
+		window.requestAnimationFrame(animate);
+	}
+	animate();
+
+	});	
+	</script>
+	
+	<div class="menu">
+		<ul>
+			<li><a href="../../index.html">INDEX</a></li>
+			<li><a href="../treeswing/tree-swing.html">Swing</a></li>
+			<li><a href="../balloons/balloons.html">Ballooons</a></li>
+			<li><a href="../birdFlock/birds-flock.html" class="current">Birds</a></li>
+			<li><a href="../coins/coins.html">Coins</a></li>
+			<li><a href="../smoke/smoke.html">Smoke</a></li>
+	
+		</ul>
+		
+	</div>
+	<div class="particle-showcase">
+		<img id="bird-flock-sprite" src="./bird-sprite.png" style="display:none">
+		<img class = "fit" src="./sky-background.png">
+		<canvas  width="1024" height="768" id="bird-sprites" class="fit"></canvas>
+	</div>
+	
+	<div class="parameters">
+		<p>
+			This example uses a spritesheet to create animations, when working with spritehsheets you gotta configure the number of colums and rows as well as how much time we'll linger in each frame
+		</p>
+	
+	</div>
+	
+	 </body>
+</html>

@@ -27,7 +27,7 @@ class VectorRange extends VectorGenerator
 
     generate()
     {
-		if(this.aspectRatio)
+		if(this.aspectRatio == true)
 		{
 			var num = Math.random();
 			return new Vector( num *(this.max.x - this.min.x) + this.min.x, num*(this.max.y - this.min.y) + this.min.y);

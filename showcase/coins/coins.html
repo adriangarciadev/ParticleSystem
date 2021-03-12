@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+
+    <title>Getting Started With Webpack</title>
+	<link rel="stylesheet" href="../style.css">
+	</style>
+  </head>
+  <body>
+  
+  	<script src="../stats.min.js"></script>
+	<script src="../dat.gui.min.js"></script>
+    <script src="../../dist/min.js"></script>
+    
+	<script type="text/javascript">
+	
+	//when everything loads
+	window.addEventListener("load", function(){
+
+		//particle system configuration
+	let parameters =  {
+		canvas: document.getElementById("the-canvas"),
+		maxParticles:100,
+		generationSpeed:50,
+		TTL:6000,
+		initialPosition: new PS.Vector(512,340),
+		initialVelocity: new PS.VectorArcRange(-Math.PI/3, -2*Math.PI/3, 600, 900),
+		initialScale: new PS.Vector(0.8,0.8),
+		acceleration : PS.Vector.Gravity,
+		attractor : {translation: new PS.Vector(0,0) , strength:8000, radius: 100},
+
+		//the trace configuration of the element to draw
+		trace:   new PS.SpriteSheet(
+		{
+				img: document.getElementById("coins"),
+				ncols:10,
+				nrows:1,
+				maxSprites: 10,
+				frameWidth: 100,
+				frameHeight: 100,
+				frameTime : 30,
+				//prerenderMode: true,
+	
+				
+		}),
+		
+		
+	}
+
+	//BASIC PARAMETERS CONFIGURATION
+	var gui = new dat.gui.GUI();
+	var f1 = gui.addFolder('Basic Parameters')
+	f1.open();
+	f1.add(parameters, 'maxParticles').onChange(function(){systemChanged(parameters)});
+	f1.add(parameters, 'generationSpeed').onChange(function(){systemChanged(parameters)});
+	f1.add(parameters, 'TTL').onChange(function(){systemChanged(parameters)});
+	//BASIC PARAMETERS CONFIGURATION
+	function systemChanged(d)
+	{
+		particleSystem = new PS.ParticleSystem(d);
+	}
+	
+	
+	//mouse events interactions
+	parameters.canvas.addEventListener('mousemove', attractor, false);
+	parameters.canvas.addEventListener('mouseout', stopAttractor, false);
+	parameters.canvas.addEventListener('mouseenter', startAttractor, false);
+	
+	
+	function stopAttractor(evt){parameters.attractor.strength=0;}
+	function startAttractor(evt){parameters.attractor.strength=8000;}
+	
+	//mouse move event function
+	function attractor(evt)
+	{
+		var rect = parameters.canvas.getBoundingClientRect();
+		let canvasPos = {
+			x: (evt.clientX - rect.left) / (rect.right - rect.left) * parameters.canvas.width,
+			y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * parameters.canvas.height
+		};
+		
+	
+		parameters.attractor.translation.x = canvasPos.x;
+		parameters.attractor.translation.y = canvasPos.y;
+		
+	}
+	
+	
+	//create the particle system
+	var particleSystem = new PS.ParticleSystem(parameters);
+	
+	
+	
+	//stats FPS counter 
+	//by Mr doob https://github.com/mrdoob/stats.js/
+	var stats = new Stats();
+	stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+	document.body.appendChild( stats.dom );
+
+	//the render loop  
+	function animate(){
+	
+		stats.begin();
+		
+		particleSystem.tick();
+		
+		stats.end();
+		
+		window.requestAnimationFrame(animate);
+	}
+	animate();
+
+	});	
+	</script>
+	
+	<div class="menu">
+		<ul>
+			<li><a href="../../index.html">INDEX</a></li>
+			<li><a href="../treeswing/tree-swing.html">Swing</a></li>
+			<li><a href="../balloons/balloons.html">Ballooons</a></li>
+			<li><a href="../birdFlock/birds-flock.html">Birds</a></li>
+			<li><a href="../coins/coins.html" class="current">Coins</a></li>
+			<li><a href="../smoke/smoke.html">Smoke</a></li>
+
+		</ul>
+	</div>
+	
+	<div class="particle-showcase">
+		<img id="coins" src="./coins.png" style="display:none">
+		<img class = "fit" src="./money-bag.jpg">
+		<canvas  width="1024" height="768" id="the-canvas" class="fit"></canvas>
+	</div>
+	
+	<div class="parameters">
+		<p>
+			In this example we showcase the use of another kind of emitter a VectorArcRange, which emits particles in an arc range as it's name suggests, there are varios kind of Vector, Scalar and Color generators to create various random effects
+		</p>
+	
+	</div>
+	
+	 </body>
+</html>

@@ -13,8 +13,11 @@ class Particle
         this.TTL    =           parameters.TTL;
         this.elapsed=           parameters.elapsed || 0;
         this.velocity = parameters.velocity || new Vector(0,0);
-        this.angularSpeed =  parameters.angularSpeed;
+        this.acceleration = parameters.acceleration;
+		this.attractor  = parameters.attractor;
+		this.angularSpeed =  parameters.angularSpeed;
         this.scaleVelocity = parameters.scaleVelocity;
+		
         this.trace = parameters.trace || null;
         this.creationTime = performance.now();
         this.currTime = performance.now();
@@ -30,6 +33,8 @@ class Particle
 
 
         this.Transform = parameters.Transform;
+		this.shear = parameters.shear;
+		this.perspective = parameters.perspective;
         
         /*{
             translation : parameters.translation || new Vector(0,0),
@@ -62,8 +67,29 @@ class Particle
     updateTranslation()
     {
 
-        this.Transform.translation.dynamic.addXY(this.velocity.x*this._delta/1000, this.velocity.y*this._delta/1000);
+		//this.Transform.translation.dynamic.addXY(this.velocity.x*this._delta/1000, this.velocity.y*this._delta/1000);
+		
+		let attractorAcceleration = Vector.Zero;
+		let val = this.Transform.translation.getValue(this.elapsed);
+		
+		if(this.attractor)
+		{
+			let distance =  new Vector( this.attractor.translation.x - val.x,   this.attractor.translation.y-val.y  );
+		
+			if(this.attractor.radius == 0 || distance.getLength() < this.attractor.radius)
+			{	
+				
+				attractorAcceleration = new Vector( this.attractor.translation.x - val.x,   this.attractor.translation.y-val.y  );
+				attractorAcceleration = attractorAcceleration.getUnit();
+				attractorAcceleration.multiplyScalar(this.attractor.strength);
+			}
+		}
+		this.Transform.translation.dynamic.addXY((this.velocity.x + this._delta/1000 * (this.acceleration.x+attractorAcceleration.x)/2 )*this._delta/1000, (this.velocity.y+ this._delta/1000 * (this.acceleration.y+attractorAcceleration.y)/2)*this._delta/1000);
         
+		this.velocity.addXY((this.acceleration.x+attractorAcceleration.x) * this._delta/1000 , (this.acceleration.y+attractorAcceleration.y) * this._delta/1000 ); 
+		
+		
+		//timestep * (velocity + timestep * acceleration / 2);
                
     }
 
@@ -82,7 +108,6 @@ class Particle
         this.updateTranslation();
         this.updateRotation();
         this.updateScale();
-
 
     }
 

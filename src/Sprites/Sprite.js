@@ -67,7 +67,7 @@ class SpriteSheet extends Sprite
 		this.privateCanvas = document.createElement("canvas");
 			this.privateCanvas.width =  this.frameWidth;
 			this.privateCanvas.height = this.frameHeight;
-			//this.privateCanvas.style.visibility ='hidden';
+			this.privateCanvas.style.display ='none';
 			document.querySelector("body").prepend(this.privateCanvas);
 		
 		this.optElements = par.prerenderNum || 16;
@@ -80,6 +80,8 @@ class SpriteSheet extends Sprite
 		
 		this.compositeOperation ='source-over';// par.compositeOperation || 'source-over';
 		
+		this.atlasMode = par.atlasMode || null;
+		this.atlasIndex = 0;
 		
 	
 		
@@ -142,20 +144,7 @@ class SpriteSheet extends Sprite
 			for(var i = 0 ; i < this.maxSprites ; i ++)
 			{
 				
-				let testObject = {
-					arg1 : (i % this.ncols)*this.frameWidth,
-					arg2 : Math.floor(i / this.ncols)*this.frameHeight, //La coordenada Y de la esquina superior izquierda del sub-rectangulo de la imagen origen a dibujar en el contexto de destino.
-					arg3 : this.frameWidth,    //El ancho para dibujar la imagen en el canvas destino.
-					arg4 : this.frameHeight,   //El alto para dibujar la imagen en el canvas destino
-					arg5: this.frameWidth*i,  //La coordenada X del canvas destino en la cual se coloca la esquina superior izquierda de la imagen origen.
-					arg6: this.frameHeight*j, //La coordenada Y del canvas destino en la cual se coloca la esquina superior izquierda de la imagen origen.
-					arg7: this.frameWidth,
-					arg8: this.frameHeight//, 0, 0, this.frameWidth, this.frameHeight);
-					
-				}
-				
-				//console.log("ARGUMENTS : " +JSON.stringify(testObject));
-								  
+									  
 				this.privateCtx.drawImage(this.img,
 					(i % this.ncols)*this.frameWidth,  //La coordenada X de la esquina superior izquierda del sub-rectangulo de la imagen origen 
 					Math.floor(i / this.ncols)*this.frameHeight, //La coordenada Y de la esquina superior izquierda del sub-rectangulo de la imagen origen a dibujar en el contexto de destino.
@@ -195,7 +184,33 @@ class SpriteSheet extends Sprite
         ctx.translate( Math.floor(particle.Transform.translation.getValue(particle.elapsed).x  ),  Math.floor(particle.Transform.translation.getValue(particle.elapsed).y));
         ctx.scale( particle.Transform.scale.getValue(particle.elapsed).x, particle.Transform.scale.getValue(particle.elapsed).y);
         ctx.rotate(particle.Transform.rotation.getValue(particle.elapsed));
+		
+		
+		let shear = particle.shear.getValue(particle.elapsed);
+		ctx.transform(1, shear.x, shear.y, 1, 0, 0);//shear test
 
+		
+		let perspective = particle.perspective.getValue(particle.elapsed);
+
+		
+		let scale = 1;
+		let angle1 = perspective.x, angle2 = perspective.y;
+		let cs = Math.cos(angle1), sn = Math.sin(angle1);
+		let h = Math.cos(angle2);
+		let a = scale*cs, b = -scale*sn, c = 0;
+		let d = h*scale*sn, e = h*scale*cs, f = 0;
+		ctx.transform(a, d, b, e, c, f);
+
+
+		/*PERSPECTIVE TRANSFORM FOR FUTURE VERSIONS 
+		
+		var cs = Math.cos(angle1), sn = Math.sin(angle1);
+		var h = Math.cos(angle2);
+		var a = 100*cs, b = -100*sn, c = 200;
+		var d = h*100*sn, e = h*100*cs, f = 200;
+		ctx.setTransform(a, d, b, e, c, f);
+		*/
+	
         if(this.loop)
             this.currentSprite =  ( Math.floor( particle.elapsed / this.frameTime )) % this.maxSprites;  
         else    
@@ -208,6 +223,23 @@ class SpriteSheet extends Sprite
 
 		//source-over
 		
+		if(this.atlasMode)
+		{
+			if(typeof particle.atlasIndex === 'undefined')
+			{
+					if(this.atlasMode ='sequential')
+					{
+						particle.atlasIndex = this.atlasIndex;
+						this.atlasIndex++;
+						
+					}
+					else
+						particle.atlasIndex = Math.floor(MathUtils.getRandom(0,maxSprites+1));
+						
+			}			
+			
+		}
+		
 		if(this.prerenderMode)
 		{
 			if(!this.isOptimized)
@@ -218,7 +250,7 @@ class SpriteSheet extends Sprite
 			if(typeof particle.prerenderIndex === 'undefined')
 			{
 				
-				//bad practice just fast.
+				//bad practice just fast to code right now.
 				if(this.color && this.color instanceof ColorList && !this.color.random)
 				{
 					particle.prerenderIndex = this.color.getSequence();
@@ -230,7 +262,6 @@ class SpriteSheet extends Sprite
 				}
 			}
 			
-			//console.log("curr index : " +  particle.prerenderIndex);
 			
 			ctx.drawImage(this.privateCanvas,
 				this.frameWidth*this.currentSprite,//this.frameWidth*particle.prerenderIndex,
@@ -300,7 +331,7 @@ class SpriteSheet extends Sprite
         
         //RESET
         ctx.setTransform(1, 0, 0, 1, 0, 0);
-
+		//ctx.resetTransform();
     }
 
 }

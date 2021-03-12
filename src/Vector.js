@@ -14,6 +14,23 @@ class Vector
         v.y=v.y*s;
 
     }
+	
+	getLength()
+	{
+		return Math.sqrt( this.x*this.x + this.y*this.y);
+	}
+	getUnit()
+	{
+		let length  = this.getLength();
+		return new Vector(this.x/length, this.y/length);
+	}
+	
+	multiplyScalar(s)
+	{
+		this.x = this.x*s;
+		this.y = this.y*s;
+	}
+	
 	equals(v)
 	{
 		return this.x == v.x && this.y == v.y;
@@ -130,6 +147,12 @@ class Vector
 		return this;
 
 	}
+	setXY(x,y)
+	{
+		this.x = x;
+		this.y = y;
+
+	}
 
     add(v)
     {
@@ -190,5 +213,6 @@ class Vector
     
 }
 Vector.Zero = new Vector(0,0);
+Vector.Gravity = new Vector(0,980);
 
 export {Vector};

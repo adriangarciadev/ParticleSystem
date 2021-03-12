@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+  <head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+
+    <title>Getting Started With Webpack</title>
+   <link rel="stylesheet" href="../style.css">
+
+  </head>
+  <body>
+  
+  	<script src="../stats.min.js"></script>
+	<script src="../dat.gui.min.js"></script>
+    <script src="../../dist/min.js"></script>
+    
+	<script type="text/javascript">
+	
+	//when everything loads
+	window.addEventListener("load", function(){
+
+		//particle system configuration
+	let parameters =  {
+		canvas: document.getElementById("the-canvas"),
+		maxParticles:100,
+		generationSpeed:100,
+		TTL:0,
+		initialPosition: new PS.VectorRange(new PS.Vector(0,0) , new PS.Vector(1024,768)),
+		initialRotation : new PS.ScalarRange(-Math.PI/6, Math.PI/6),
+		angularSpeed: new PS.ScalarRange(-Math.PI/16, Math.PI/16),
+		attractor : {translation: new PS.Vector(0,0) , strength:-5000, radius: 100},
+
+		//the trace configuration of the element to draw
+		 trace:   new PS.SpriteSheet(
+			{
+					img: document.getElementById("balloon"),
+					frameWidth: 100,
+					frameHeight: 237,
+					prerenderMode: true,//prerender mode creates different colored images(colors chosen at random) to make randomizing colors much faster. you can still control the colors manually if you so desire but the particle count you can sustain will suffer.
+					rotateFromCenter:false,//rotations occurs from the bottom left of the image instead of the center
+		
+					
+			}),
+		
+		
+	}
+
+	//BASIC PARAMETERS CONFIGURATION
+	var gui = new dat.gui.GUI();
+	var f1 = gui.addFolder('Basic Parameters')
+	f1.open();
+	f1.add(parameters, 'maxParticles').onChange(function(){systemChanged(parameters)});
+	f1.add(parameters, 'generationSpeed').onChange(function(){systemChanged(parameters)});
+	f1.add(parameters, 'TTL').onChange(function(){systemChanged(parameters)});
+	//BASIC PARAMETERS CONFIGURATION
+	function systemChanged(d)
+	{
+		particleSystem = new PS.ParticleSystem(d);
+	}
+	
+	
+	//mouse events interactions
+	parameters.canvas.addEventListener('mousemove', attractor, false);
+	parameters.canvas.addEventListener('mouseout', stopAttractor, false);
+	parameters.canvas.addEventListener('mouseenter', startAttractor, false);
+	
+	
+	function stopAttractor(evt){parameters.attractor.strength=0;}
+	function startAttractor(evt){parameters.attractor.strength=-5000;}
+	
+	//mouse move event function
+	function attractor(evt)
+	{
+		var rect = parameters.canvas.getBoundingClientRect();
+		let canvasPos = {
+			x: (evt.clientX - rect.left) / (rect.right - rect.left) * parameters.canvas.width,
+			y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * parameters.canvas.height
+		};
+		
+	
+		parameters.attractor.translation.x = canvasPos.x;
+		parameters.attractor.translation.y = canvasPos.y;
+		
+	}
+	
+	
+	//create the particle system
+	var particleSystem = new PS.ParticleSystem(parameters);
+	
+	
+	
+	//stats FPS counter 
+	//by Mr doob https://github.com/mrdoob/stats.js/
+	var stats = new Stats();
+	stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+	document.body.appendChild( stats.dom );
+
+	//the render loop  
+	function animate(){
+	
+		stats.begin();
+		
+		particleSystem.tick();
+		
+		stats.end();
+		
+		window.requestAnimationFrame(animate);
+	}
+	animate();
+
+	});	
+	</script>
+	<div class="menu">
+		<ul>
+			<li><a href="../../index.html">INDEX</a></li>
+			<li><a href="../treeswing/tree-swing.html">Swing</a></li>
+			<li><a href="../balloons/balloons.html" class="current">Ballooons</a></li>
+			<li><a href="../birdFlock/birds-flock.html">Birds</a></li>
+			<li><a href="../coins/coins.html">Coins</a></li>
+			<li><a href="../smoke/smoke.html">Smoke</a></li>
+
+		</ul>
+	</div>
+	<div class="particle-showcase">
+		<img id="balloon" src="./balloon.png" style="display:none">
+	<!--	<img class = "fit" src="./room.jpg"> -->
+		<canvas  width="1024" height="768" id="the-canvas" class="fit"></canvas>
+	</div>
+	
+	<div class="parameters">
+		<p>
+			In this example we activate prerender mode, by default it creates 16 objects of random colors in an efficient way, you can also control the color in real time but this operation is much more expensive.
+			you can also choose which colors to use for colouring your image.
+		</p>
+	
+	</div>
+	
+	 </body>
+</html>

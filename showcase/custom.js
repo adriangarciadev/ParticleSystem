@@ -7,59 +7,7 @@ console.log("vector test :" +JSON.stringify(vec));
 
 window.addEventListener("load", function(){
 	
-	
-	function systemChanged(par)
-	{
-		switch(par.options.initialPosition.type)
-		{
-			case 'Vector':
-				par.options.initialPosition.VF.show();
-				par.options.initialPosition.VRF.hide();
-				par.options.initialPosition.VARF.hide();
-				par.initialPosition = par.options.initialPosition.Vector;
-				break;
-			case 'VectorRange':
-				par.options.initialPosition.VF.hide();
-				par.options.initialPosition.VRF.show();
-				par.options.initialPosition.VARF.hide();
-				par.initialPosition = par.options.initialPosition.VectorRange;
-				break;
-			default:break;
-			
-		}
-		
-		particleSystem = new PS.ParticleSystem(par);
-		
-		//console.log("I've changed come again " + JSON.stringify(par.maxParticles) );
-		
-	}
-	function otherTest(par)
-	{
-		console.log(JSON.stringify(par));
-	}
-	
-	var obj = {
-        message: 'Hello World',
-        displayOutline: false,
 
-        maxSize: 6.0,
-        speed: 5,
-
-        height: 10,
-        noiseStrength: 10.2,
-        growthSpeed: 0.2,
-
-        type: 'three',
-
-        explode: function () {
-          alert('Bang!');
-        },
-
-        color0: "#ffae23", // CSS string
-        color1: [ 0, 128, 255 ], // RGB array
-        color2: [ 0, 128, 255, 0.3 ], // RGB with alpha
-        color3: { h: 350, s: 0.9, v: 0.3 } // Hue, saturation, value
-    };
 	
 	/*DAT GUI STUFF*/
 
@@ -169,6 +117,7 @@ window.addEventListener("load", function(){
 		  },
 		  
 		  canvas:canvas,
+		  
 		  initialVelocity: new PS.VectorRange(new PS.Vector(400,-400), new PS.Vector(600,400)),
 		  //initialVelocity: new PS.VectorArcRange(0,6.2,-500,-500),
 		  initialScale:new PS.Vector(0.2,0.2),
@@ -187,65 +136,150 @@ window.addEventListener("load", function(){
 		  };
 		  
 		  
-		
-		var gui = new dat.gui.GUI();
-		var f1 = gui.addFolder('Basic Parameters')
-		f1.open();
-		f1.add(JSparameters, 'maxParticles').onChange(function(){systemChanged(JSparameters)});
-		f1.add(JSparameters, 'generationSpeed').onChange(function(){systemChanged(JSparameters)});
-		f1.add(JSparameters, 'TTL').onChange(function(){systemChanged(JSparameters)});
-		
-		let f2 = gui.addFolder('Initial Position');
-			f2.add(JSparameters.options.initialPosition, 'type', [ 'Vector', 'VectorRange', 'VectorArcRange' ] ).onChange(function(){systemChanged(JSparameters)});
-		
-		var alias = JSparameters.options.initialPosition;
-		alias.VF = f2.addFolder('Vector');
-			alias.VF.open();
-			alias.VF.add(JSparameters.options.initialPosition.Vector, 'x').onChange(function(){systemChanged(JSparameters)});
-			alias.VF.add(JSparameters.options.initialPosition.Vector, 'y').onChange(function(){systemChanged(JSparameters)});
-		alias.VRF = f2.addFolder('VectorRange');
-			alias.VRF.open();
-		JSparameters.options.initialPosition.VRF.hide();
-			let VRFMin = alias.VRF.addFolder('VectorRangeMin');
-				VRFMin.open();
-				VRFMin.add(JSparameters.options.initialPosition.VectorRange.min, 'x').onChange(function(){systemChanged(JSparameters)});
-				VRFMin.add(JSparameters.options.initialPosition.VectorRange.min, 'y').onChange(function(){systemChanged(JSparameters)});
-			let VRFMax = alias.VRF.addFolder('VectorRangeMax');
-				VRFMax.open();
-					VRFMax.add(JSparameters.options.initialPosition.VectorRange.max, 'x').onChange(function(){systemChanged(JSparameters)});
-					VRFMax.add(JSparameters.options.initialPosition.VectorRange.max, 'y').onChange(function(){systemChanged(JSparameters)});
-		alias.VARF = f2.addFolder('VectorArcRange');
 	
-
-	
-		gui.add(obj, 'displayOutline');
-		gui.add(obj, 'explode');
-
-		//gui.add(obj, 'maxSize').min(-10).max(10).step(0.25);
-		gui.add(obj, 'maxSize').onChange(function(){otherTest(obj)});
-		gui.add(obj, 'height').step(5); // Increment amount
-
-		// Choose from accepted values
-		gui.add(obj, 'type', [ 'one', 'two', 'three' ] );
-
-		// Choose from named values
-		gui.add(obj, 'speed', { Stopped: 0, Slow: 0.1, Fast: 5 } );
-
-		/*var f1 = gui.addFolder('Colors');
-		f1.addColor(obj, 'color0');
-		f1.addColor(obj, 'color1');
-		f1.addColor(obj, 'color2');
-		f1.addColor(obj, 'color3');
-*/
-	//	var f2 = gui.addFolder('Another Folder');
-	//	f2.add(obj, 'noiseStrength');
-
-		var f3 = f2.addFolder('Nested Folder');
-		f3.add(obj, 'growthSpeed');
-		
 		  
 		  
-		var particleSystem = new PS.ParticleSystem(JSparameters);
+		//var particleSystem = new PS.ParticleSystem(JSparameters);
+		
+		
+	let treeSwing = {
+		 
+		 canvas: document.getElementById("tree-swing"),
+		 maxParticles:60,
+		 generationSpeed:10,
+		 TTL:6000,
+		 initialPosition: new PS.VectorRange(new PS.Vector(0,0) , new PS.Vector(0,1000)),
+		initialVelocity: new PS.VectorRange(new PS.Vector(400,100), new PS.Vector(600,200)),
+		initialScale: 	new PS.VectorRange(new PS.Vector(0.5,0.5), new PS.Vector(1.5,1.5), true),
+		angularSpeed: new PS.ScalarRange(-2*Math.PI, 2*Math.PI),
+
+
+		 trace:   new PS.SpriteSheet(
+			{
+					img: document.getElementById("tree-swing-leaf"),
+					frameWidth: 40,
+					frameHeight: 40,
+				//	prerenderMode:true
+					
+			}),
+		
+		
+	}
+	
+	let birdSprite =  {
+		 
+		 canvas: document.getElementById("bird-sprites"),
+		 maxParticles:60,
+		 generationSpeed:10,
+		 TTL:6000,
+		 initialPosition: new PS.VectorRange(new PS.Vector(0,0) , new PS.Vector(0,1000)),
+		initialVelocity: new PS.VectorRange(new PS.Vector(700,-400), new PS.Vector(900,-200)),
+		initialScale: 	new PS.VectorRange(new PS.Vector(-1.5, 1.5), new PS.Vector(-0.5 , 0.5), true),
+	
+
+		 trace:   new PS.SpriteSheet(
+			{
+					img: document.getElementById("bird-flock-sprite"),
+					ncols:5,
+					nrows:4,
+					maxSprites: 20,
+					frameWidth: 240,
+					frameHeight: 314,
+					frameTime : 30,
+					//prerenderMode: true,
+		
+					
+			}),
+		
+		
+	}
+	
+	let coins =  {
+	 
+	 canvas: document.getElementById("coins-canvas"),
+	 maxParticles:100,
+	 generationSpeed:50,
+	 TTL:6000,
+	 initialPosition: new PS.Vector(512,340),
+	 initialVelocity: new PS.VectorArcRange(-Math.PI/3, -2*Math.PI/3, 600, 900),
+	 initialScale: new PS.Vector(0.8,0.8),
+	 acceleration : PS.Vector.Gravity,
+	
+
+	 trace:   new PS.SpriteSheet(
+		{
+				img: document.getElementById("coins"),
+				ncols:10,
+				nrows:1,
+				maxSprites: 10,
+				frameWidth: 100,
+				frameHeight: 100,
+				frameTime : 30,
+				//prerenderMode: true,
+	
+				
+		}),
+	
+	
+	}
+	
+	
+	let explosion =  {
+	 
+	 canvas: document.getElementById("explosion-canvas"),
+	 maxParticles:600,
+	 generationSpeed:400,
+	 TTL:6000,
+	initialPosition: new PS.VectorRange(new PS.Vector(0,0) , new PS.Vector(1024,768)),
+	//initialVelocity: new PS.VectorRange(new PS.Vector(200,-200), new PS.Vector(300,200)),
+	//acceleration: new PS.Vector(0,-200),
+	attractor : {translation: new PS.Vector(0,0) , strength:-100000, radius: 100},
+
+	 trace:   new PS.SpriteSheet(
+		{
+				img: document.getElementById("explosion"),
+				ncols:7,
+				nrows:7,
+				maxSprites: 49,
+				frameWidth: 127,
+				frameHeight: 127,
+				frameTime : 30,
+				//color: new PS.Color(255,0,0,0.5),
+				prerenderMode: true,
+				//prerenderMode: true,
+	
+				
+		}),
+	
+	
+	}
+	
+	explosion.canvas.addEventListener('mousemove', attractor, false);
+	explosion.canvas.addEventListener('mouseout', stopAttractor, false);
+	explosion.canvas.addEventListener('mouseenter', startAttractor, false);
+	
+	
+	function stopAttractor(evt){explosion.attractor.strength=0;}
+	function startAttractor(evt){explosion.attractor.strength=-10000;}
+	
+	function attractor(evt)
+	{
+		var rect = explosion.canvas.getBoundingClientRect();
+		let canvasPos = {
+			x: (evt.clientX - rect.left) / (rect.right - rect.left) * explosion.canvas.width,
+			y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * explosion.canvas.height
+		};
+		
+	
+		explosion.attractor.translation.x = canvasPos.x;
+		explosion.attractor.translation.y = canvasPos.y;
+		
+	}
+	
+	//var particleSystem = new PS.ParticleSystem(treeSwing);
+	//var particleSystem = new PS.ParticleSystem(birdSprite);
+	var particleSystem = new PS.ParticleSystem(explosion);
+
 
 		  
 		var stats = new Stats();

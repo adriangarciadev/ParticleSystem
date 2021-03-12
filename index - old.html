@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+
+    <title>Getting Started With Webpack</title>
+	<style>
+		body{background-color:#eaeaee;}
+		canvas
+		{
+
+		}
+		img.fit{
+			width:100%;
+			height:100%;
+		}
+		div.particle-showcase
+		{
+			width:1024px;
+			height:768px;
+			position:relative;
+			margin-left:auto;
+			margin-right:auto;
+		}
+		canvas.fit
+		{
+			//width:1024px;
+			//height:768px;
+			position:absolute;
+			z-index:2;
+			left:0px;
+	
+		}
+		
+	</style>
+  </head>
+  <body>
+  
+  	<script src="./showcase/stats.min.js"></script>
+	<script src="./showcase/dat.gui.min.js"></script>
+    <script src="./dist/min.js"></script>
+    <script src="./showcase/custom.js"></script>
+	
+	
+	<div class="menu">
+		
+	</div>
+	<div class="particle-showcase" style = "display:none">
+		<img id="tree-swing-leaf" src="./showcase/treeswing/tree-swing-leaf.png" style="display:none">
+		<img class = "fit" src="./showcase/treeswing/tree-swing.jpg">
+		<canvas  width="1024" height="768" id="tree-swing" class="fit"></canvas>
+	</div>
+	
+	<div class="particle-showcase" style = "display:none">
+		<img id="bird-flock-sprite" src="./showcase/birdFlock/bird-sprite.png" style="display:none">
+		<img class = "fit" src="./showcase/birdFlock/sky-background.png">
+		<canvas  width="1024" height="768" id="bird-sprites" class="fit"></canvas>
+	</div>
+	
+	<div class="particle-showcase" style = "display:none">
+		<img id="coins" src="./showcase/coins/coins.png" style="display:none">
+		<img class = "fit" src="./showcase/coins/money-bag.jpg">
+		<canvas  width="1024" height="768" id="coins-canvas" class="fit"></canvas>
+	</div>
+	
+	<div class="particle-showcase">
+		<img id="explosion" src="./showcase/explosion/explosion.png" style="display:none">
+		<canvas  width="1024" height="768" id="explosion-canvas" class="fit"></canvas>
+	</div>
+	
+	
+	<div class="parameters">
+		
+	</div>
+  
+	<h2>IMAGE BELOW THIS </h2>
+	<img id="fire-fx" src ="./showcase/leaf.png" style="display:none">
+	
+
+	
+  </body>
+</html>

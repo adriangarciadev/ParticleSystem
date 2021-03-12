@@ -200,7 +200,11 @@ class ParticleSystem
          
         elapsed: parameters.elapsed||0,
         
-        velocity: this._handleVectorValue( parameters.initialVelocity , new Vector(0,0)),           
+        velocity: this._handleVectorValue( parameters.initialVelocity , new Vector(0,0)),         
+
+		acceleration : parameters.acceleration || new Vector(0,0),
+		
+		attractor: parameters.attractor || null,
         
         angularSpeed : this._handleScalarValue(parameters.angularSpeed, 0 ,"ERROR WITH ANGULAR SPEED"),
         
@@ -215,11 +219,14 @@ class ParticleSystem
             rotation :
              new ScalarValue(0 ,  this._handleScalarValue(parameters.initialRotation, 0) , parameters.rotationTimeline || null ), //this._handleScalarValue(this.parameters.initialRotation, 0),
             scale :
-             new VectorValue(new Vector(0,0),this._handleVectorValue( parameters.initialScale , new Vector(1,1)) , parameters.scaleTimeline || null)
+             new VectorValue(new Vector(1,1),this._handleVectorValue( parameters.initialScale , new Vector(1,1)) , parameters.scaleTimeline || null)
             
         },
-        
-        
+		
+		shear :  new VectorValue(new Vector(0,0), this._handleVectorValue( parameters.shear , new Vector(0,0)), parameters.shearTimeline || null  ),
+		
+		perspective :  new VectorValue(new Vector(0,0), this._handleVectorValue( parameters.perspective , new Vector(0,0)), parameters.perspectiveTimeline || null  ),
+                
         strokeStyle :parameters.strokeStyle || "#000000FF",
 
         fillStyle : this._handleColorValue(parameters.fillStyle,"#000000"),

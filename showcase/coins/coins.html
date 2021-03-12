@@ -29,7 +29,7 @@
 		initialVelocity: new PS.VectorArcRange(-Math.PI/3, -2*Math.PI/3, 600, 900),
 		initialScale: new PS.Vector(0.8,0.8),
 		acceleration : PS.Vector.Gravity,
-		attractor : {translation: new PS.Vector(0,0) , strength:8000, radius: 100},
+		attractor : {translation: new PS.Vector(0,0) , strength:8000, radius: 250},
 
 		//the trace configuration of the element to draw
 		trace:   new PS.SpriteSheet(
@@ -45,10 +45,12 @@
 	
 				
 		}),
+	
 		
-		
+		attractorFullStrength:8000
 	}
-
+	
+	
 	//BASIC PARAMETERS CONFIGURATION
 	var gui = new dat.gui.GUI();
 	var f1 = gui.addFolder('Basic Parameters')
@@ -56,6 +58,9 @@
 	f1.add(parameters, 'maxParticles').onChange(function(){systemChanged(parameters)});
 	f1.add(parameters, 'generationSpeed').onChange(function(){systemChanged(parameters)});
 	f1.add(parameters, 'TTL').onChange(function(){systemChanged(parameters)});
+	f1.add(parameters, 'attractorFullStrength');
+	f1.add(parameters.attractor, 'radius');
+	
 	//BASIC PARAMETERS CONFIGURATION
 	function systemChanged(d)
 	{
@@ -70,7 +75,7 @@
 	
 	
 	function stopAttractor(evt){parameters.attractor.strength=0;}
-	function startAttractor(evt){parameters.attractor.strength=8000;}
+	function startAttractor(evt){parameters.attractor.strength = parameters.attractorFullStrength;}
 	
 	//mouse move event function
 	function attractor(evt)
